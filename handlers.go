@@ -6,7 +6,6 @@ import (
 	"io"
 	"io/ioutil"
 	"net/http"
-	"strconv"
 
 	"github.com/gorilla/mux"
 )
@@ -15,26 +14,26 @@ func Index(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, "Welcome!\n")
 }
 
-func TodoIndex(w http.ResponseWriter, r *http.Request) {
+func OfferIndex(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
-	if err := json.NewEncoder(w).Encode(todos); err != nil {
+	if err := json.NewEncoder(w).Encode(offers); err != nil {
 		panic(err)
 	}
 }
 
-func TodoShow(w http.ResponseWriter, r *http.Request) {
+func OfferShow(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	var todoId int
+	var id string
 	var err error
-	if todoId, err = strconv.Atoi(vars["todoId"]); err != nil {
+	if id = vars["id"]; err != nil {
 		panic(err)
 	}
-	todo := RepoFindTodo(todoId)
-	if todo.Id > 0 {
+	offer := RepoFindOffer(id)
+	if offer.Id != "" {
 		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 		w.WriteHeader(http.StatusOK)
-		if err := json.NewEncoder(w).Encode(todo); err != nil {
+		if err := json.NewEncoder(w).Encode(offer); err != nil {
 			panic(err)
 		}
 		return
@@ -51,10 +50,10 @@ func TodoShow(w http.ResponseWriter, r *http.Request) {
 
 /*
 Test with this curl command:
-curl -H "Content-Type: application/json" -d '{"name":"New Todo"}' http://localhost:8080/todos
+curl -H "Content-Type: application/json" -d '{"name":"New Offer"}' http://localhost:8080/product
 */
-func TodoCreate(w http.ResponseWriter, r *http.Request) {
-	var todo Todo
+func OfferCreate(w http.ResponseWriter, r *http.Request) {
+	var offer Offer
 	body, err := ioutil.ReadAll(io.LimitReader(r.Body, 1048576))
 	if err != nil {
 		panic(err)
@@ -62,7 +61,7 @@ func TodoCreate(w http.ResponseWriter, r *http.Request) {
 	if err := r.Body.Close(); err != nil {
 		panic(err)
 	}
-	if err := json.Unmarshal(body, &todo); err != nil {
+	if err := json.Unmarshal(body, &offer); err != nil {
 		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 		w.WriteHeader(422) // unprocessable entity
 		if err := json.NewEncoder(w).Encode(err); err != nil {
@@ -70,7 +69,7 @@ func TodoCreate(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	t := RepoCreateTodo(todo)
+	t := RepoCreateOffer(offer)
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusCreated)
 	if err := json.NewEncoder(w).Encode(t); err != nil {

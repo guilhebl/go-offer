@@ -6,7 +6,7 @@ import (
 )
 
 func main() {
-	log.Printf("%s","Server starting at port 8080...")
+	log.Printf("%s","Server starting on port 8080...")
 
 	router := NewRouter()
 
