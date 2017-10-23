@@ -2,69 +2,74 @@ package main
 
 import (
 	"fmt"
-	"strconv"
+	"encoding/json"
+	"log"
+	"net/http"
+	"bytes"
 )
 
-var currentId int
+func SearchOffers() OfferList {
+	endpoint := GetEndpoint()
+	url := fmt.Sprintf(endpoint)
 
-var offers Offers
+	// Build the request
+	l := ListRequest{}
+	jsonValue, _ := json.Marshal(l)
+	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonValue))
+	var offerList OfferList
 
-// Give us some seed data
-func init() {
-	RepoCreateOffer(
-		Offer{
-		Name: "Toshiba Laptop",
-		Upc: "upc1",
-		SemanticName: "prod1",
-		PartyName: "amazon.com",
-		PartyImageFileUrl: "amazon.jpg",
-		MainImageFileUrl: "/img/sample_001.jpg",
-		ProductCategory: "Computer, Laptops",
-		NumReviews: 10,
-		Price: 785.99,
-		Rating: 4.5,
-	})
+	log.Println("search: %s", req)
 
-	RepoCreateOffer(
-		Offer{
-			Name: "HP Laptop",
-			Upc: "upc2",
-			SemanticName: "prod2",
-			PartyName: "bestbuy.com",
-			PartyImageFileUrl: "bestbuy.jpg",
-			MainImageFileUrl: "/img/sample_002.jpg",
-			ProductCategory: "Computer, Laptops",
-			NumReviews: 100,
-			Price: 615.40,
-			Rating: 3.9,
-		})
-
-}
-
-func RepoFindOffer(id string) Offer {
-	for _, t := range offers {
-		if t.Id == id {
-			return t
-		}
+	if err != nil {
+		log.Fatal("NewRequest: ", err)
+		return offerList
 	}
-	// return empty Offer if not found
-	return Offer{}
-}
 
-//this is bad, I don't think it passes race condtions
-func RepoCreateOffer(t Offer) Offer {
-	currentId += 1
-	t.Id = strconv.Itoa(currentId)
-	offers = append(offers, t)
-	return t
-}
+	client := &http.Client{}
 
-func RepoDestroyOffer(id string) error {
-	for i, t := range offers {
-		if t.Id == id {
-			offers = append(offers[:i], offers[i+1:]...)
-			return nil
-		}
+	resp, err := client.Do(req)
+	if err != nil {
+		log.Fatal("Do: ", err)
+		return offerList
 	}
-	return fmt.Errorf("Could not find Offer with id of %d to delete", id)
+	defer resp.Body.Close()
+
+	// Use json.Decode for reading streams of JSON data
+	if err := json.NewDecoder(resp.Body).Decode(&offerList); err != nil {
+		log.Println(err)
+	}
+
+	return offerList
+}
+
+func GetOfferDetail(id string, idType string, source string) OfferDetail {
+	endpoint := GetEndpoint() + "/" + id + "?idType=" + idType + "&source=" + source
+	url := fmt.Sprintf(endpoint)
+
+	// Build the request
+	req, err := http.NewRequest("GET", url, nil)
+	var entity OfferDetail
+
+	log.Println("getDetail: %s", req)
+
+	if err != nil {
+		log.Fatal("NewRequest: ", err)
+		return entity
+	}
+
+	client := &http.Client{}
+
+	resp, err := client.Do(req)
+	if err != nil {
+		log.Fatal("Do: ", err)
+		return entity
+	}
+	defer resp.Body.Close()
+
+	// Use json.Decode for reading streams of JSON data
+	if err := json.NewDecoder(resp.Body).Decode(&entity); err != nil {
+		log.Println(err)
+	}
+
+	return entity
 }

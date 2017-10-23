@@ -25,12 +25,6 @@ var routes = Routes{
 		OfferIndex,
 	},
 	Route{
-		"OfferCreate",
-		"POST",
-		"/offers",
-		OfferCreate,
-	},
-	Route{
 		"OfferShow",
 		"GET",
 		"/offers/{id}",
