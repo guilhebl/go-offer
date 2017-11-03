@@ -16,7 +16,7 @@ go build
 
 ### testing
 
-go test
+go test ./...
 
 
 ## Contribution
