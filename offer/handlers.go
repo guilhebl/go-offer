@@ -2,7 +2,6 @@ package offer
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -10,10 +9,6 @@ import (
 )
 
 func Index(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprint(w, "Welcome!\n")
-}
-
-func OfferIndex(w http.ResponseWriter, r *http.Request) {
 
 	// offer list
 	offers := SearchOffers()
@@ -26,7 +21,7 @@ func OfferIndex(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func OfferShow(w http.ResponseWriter, r *http.Request) {
+func Show(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	var id string
 	var err error

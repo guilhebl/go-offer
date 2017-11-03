@@ -19,15 +19,15 @@ var routes = Routes{
 		Index,
 	},
 	Route{
-		"OfferIndex",
+		"Index",
 		"GET",
 		"/offers",
-		OfferIndex,
+		Index,
 	},
 	Route{
-		"OfferShow",
+		"Show",
 		"GET",
 		"/offers/{id}",
-		OfferShow,
+		Show,
 	},
 }
