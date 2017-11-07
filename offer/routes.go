@@ -25,6 +25,12 @@ var routes = Routes{
 		Index,
 	},
 	Route{
+		"Search",
+		"POST",
+		"/offers",
+		Search,
+	},
+	Route{
 		"Show",
 		"GET",
 		"/offers/{id}",

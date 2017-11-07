@@ -3,6 +3,7 @@ package config
 import (
 	"log"
 	"github.com/guilhebl/fileutil"
+	"strconv"
 )
 
 var props fileutil.AppConfigProperties
@@ -12,7 +13,7 @@ func init() {
 
 	propsFile, err := fileutil.ReadPropertiesFile("app-config.properties")
 	if err != nil {
-		log.Println("Error while reading properties file")
+		log.Println("Error while reading config properties file")
 	}
 
 	props = propsFile
@@ -20,6 +21,11 @@ func init() {
 
 func GetProperty(p string) string {
 	return props[p]
+}
+
+func GetIntProperty(p string) int64 {
+	prop, _ := strconv.ParseInt(GetProperty(p), 10, 0)
+	return prop
 }
 
 // gets backend endpoint
