@@ -5,11 +5,12 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
-	"github.com/guilhebl/offergo/common/model"
-	"github.com/guilhebl/offergo/common/config"
-	"github.com/guilhebl/offergo/offer/monitor"
+	"github.com/guilhebl/go-offer/common/model"
+	"github.com/guilhebl/go-offer/common/config"
+	"github.com/guilhebl/go-offer/offer/monitor"
 	"strconv"
 	"time"
+	"strings"
 )
 
 // Searches for offers from Walmart
@@ -27,7 +28,7 @@ func SearchOffers(m map[string]string) *model.OfferList {
 	endpoint := config.GetProperty("walmartEndpoint")
 	isKeywordSearch := p["query"] != ""
 	page, _ := strconv.ParseInt(p[model.Page], 10, 0)
-	pageSize := config.GetIntProperty("walmartDefaultPageSize")
+	pageSize := int(config.GetIntProperty("walmartDefaultPageSize"))
 	responseGroup := config.GetProperty("walmartSearchResponseGroup")
 	apiKey := config.GetProperty("walmartApiKey")
 	affiliateId := config.GetProperty("walmartAffiliateId")
@@ -39,7 +40,6 @@ func SearchOffers(m map[string]string) *model.OfferList {
 	}
 
 	if isKeywordSearch {
-
 		url := endpoint + "/" + config.GetProperty("walmartProductSearchPath")
 		req, err := http.NewRequest("GET", url, nil)
 
@@ -65,8 +65,96 @@ func SearchOffers(m map[string]string) *model.OfferList {
 			return nil
 		}
 		defer resp.Body.Close()
+
+		var entity SearchResponse
+
+		if err := json.NewDecoder(resp.Body).Decode(&entity); err != nil {
+			log.Println(err)
+			return nil
+		}
+		return buildSearchResponse(&entity, pageSize)
+	} else {
+
+		// search trending items if no keyword provided
+		url := endpoint + "/" + config.GetProperty("walmartProductTrendingPath")
+		req, err := http.NewRequest("GET", url, nil)
+
+		req.Header.Set("Accept", "application/json")
+		q := req.URL.Query()
+		q.Add("format", "json")
+		q.Add("responseGroup", responseGroup)
+		q.Add("apiKey", apiKey)
+		q.Add("lsPublisherId", affiliateId)
+
+		url = fmt.Sprintf(req.URL.String())
+		log.Printf("Walmart trending: %s", url)
+
+		client := &http.Client{
+			Timeout: timeout,
+		}
+
+		resp, err := client.Do(req)
+		if err != nil {
+			log.Fatal("Do: ", err)
+			return nil
+		}
+		defer resp.Body.Close()
+
+		var entity TrendingResponse
+
+		if err := json.NewDecoder(resp.Body).Decode(&entity); err != nil {
+			log.Println(err)
+			return nil
+		}
+		return buildTrendingResponse(&entity, int(page), pageSize)
 	}
+
 	return nil
+}
+
+func buildTrendingResponse(r *TrendingResponse, page, pageSize int) *model.OfferList {
+	list := buildSearchItemList(r.Items)
+	l := len(r.Items)
+	o := model.NewOfferList(list, page, l / pageSize, l)
+	return o
+}
+
+func buildSearchResponse(r *SearchResponse, pageSize int) *model.OfferList {
+	list := buildSearchItemList(r.Items)
+	o := model.NewOfferList(list, r.Start / pageSize + 1, r.TotalResults / pageSize, r.TotalResults)
+	return o
+}
+
+func buildSearchItemList(items []SearchItem) []model.Offer {
+	list := make([]model.Offer, len(items))
+	proxyRequired := strings.Index(config.GetProperty("marketplaceProvidersImageProxyRequired"), model.Walmart) != -1
+
+	for _,item := range items {
+
+		rate, err := strconv.ParseFloat(item.CustomerRating, 32)
+		if err != nil {
+			log.Println(err)
+			return nil
+		}
+
+		o := model.NewOffer(
+			strconv.Itoa(item.ItemId),
+			item.Upc,
+			item.Name,
+			model.Walmart,
+			item.ProductTrackingUrl,
+			config.BuildImgUrlExternal(item.LargeImage, proxyRequired),
+			config.BuildImgUrl("walmart-logo.png"),
+			item.CategoryPath,
+			item.SalePrice,
+			float32(rate),
+			item.NumReviews,
+		)
+
+		list = append(list, *o)
+	}
+
+	return list
 }
 
 func filterParams(m map[string]string) map[string]string {
@@ -87,34 +175,81 @@ func filterParams(m map[string]string) map[string]string {
 	return p
 }
 
-func GetOfferDetail(id string, idType string, source string) model.OfferDetail {
-	endpoint := config.GetEndpoint() + "/" + id + "?idType=" + idType + "&source=" + source
-	url := fmt.Sprintf(endpoint)
+// Search for a specific product detail either by Id or Upc
+func GetOfferDetail(id string, idType string, country string) *model.OfferDetail {
 
-	// Build the request
-	req, err := http.NewRequest("GET", url, nil)
-	var entity model.OfferDetail
-
-	log.Println("getDetail: %s", req)
-
-	if err != nil {
-		log.Fatal("NewRequest: ", err)
-		return entity
+	// try to acquire lock from request Monitor
+	if !monitor.IsServiceAvailable(model.Walmart) {
+		log.Printf("Unable to acquire lock from Request Monitor")
+		return nil
 	}
 
-	client := &http.Client{}
+	endpoint := config.GetProperty("walmartEndpoint")
+	path := config.GetProperty("walmartProductDetailPath")
+	apiKey := config.GetProperty("walmartApiKey")
+	affiliateId := config.GetProperty("walmartAffiliateId")
+	timeout := time.Duration(config.GetIntProperty("marketplaceDefaultTimeout")) * time.Millisecond
 
-	resp, err := client.Do(req)
-	if err != nil {
-		log.Fatal("Do: ", err)
-		return entity
+	if idType == "id" {
+		url := endpoint + "/" + path + "/" + id
+		req, err := http.NewRequest("GET", url, nil)
+
+		req.Header.Set("Accept", "application/json")
+		q := req.URL.Query()
+		q.Add("format", "json")
+		q.Add("apiKey", apiKey)
+		q.Add("lsPublisherId", affiliateId)
+
+		url = fmt.Sprintf(req.URL.String())
+		log.Printf("Walmart get: %s", url)
+
+		client := &http.Client{
+			Timeout: timeout,
+		}
+
+		resp, err := client.Do(req)
+		if err != nil {
+			log.Fatal("Do: ", err)
+			return nil
+		}
+		defer resp.Body.Close()
+
+		var entity SearchItem
+
+		if err := json.NewDecoder(resp.Body).Decode(&entity); err != nil {
+			log.Println(err)
+			return nil
+		}
+		return buildProductDetail(&entity)
 	}
-	defer resp.Body.Close()
 
-	// Use json.Decode for reading streams of JSON data
-	if err := json.NewDecoder(resp.Body).Decode(&entity); err != nil {
-		log.Println(err)
-	}
+	return nil
+}
 
-	return entity
+func buildProductDetail(item *SearchItem) *model.OfferDetail {
+	//proxyRequired := strings.Index(config.GetProperty("marketplaceProvidersImageProxyRequired"), model.Walmart) != -1
+	//
+	//rate, err := strconv.ParseFloat(item.CustomerRating, 32)
+	//if err != nil {
+	//	log.Println(err)
+	//	return nil
+	//}
+
+	//o := model.NewOffer(
+	//	strconv.Itoa(item.ItemId),
+	//	item.Upc,
+	//	item.Name,
+	//	model.Walmart,
+	//	item.ProductTrackingUrl,
+	//	config.BuildImgUrlExternal(item.LargeImage, proxyRequired),
+	//	config.BuildImgUrl("walmart-logo.png"),
+	//	item.CategoryPath,
+	//	item.SalePrice,
+	//	float32(rate),
+	//	item.NumReviews,
+	//)
+
+	//det := model.NewOfferDetail()
+
+	return nil
 }

@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
-	"github.com/guilhebl/offergo/common/util"
+	"github.com/guilhebl/go-offer/common/util"
 )
 
 func NewRouter() *mux.Router {

@@ -11,4 +11,4 @@
 *.out
 
 # exclude binary file
-offergo
+go-offer

@@ -4,7 +4,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/guilhebl/offergo/offer"
+	"github.com/guilhebl/go-offer/offer"
 )
 
 func main() {

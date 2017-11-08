@@ -7,8 +7,8 @@ import (
 	"net/http"
 	"bytes"
 
-	"github.com/guilhebl/offergo/common/model"
-	"github.com/guilhebl/offergo/common/config"
+	"github.com/guilhebl/go-offer/common/model"
+	"github.com/guilhebl/go-offer/common/config"
 )
 
 func SearchOffers() model.OfferList {

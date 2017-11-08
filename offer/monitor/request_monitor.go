@@ -2,8 +2,8 @@ package monitor
 
 import (
 	"sync"
-	"github.com/guilhebl/offergo/common/config"
-	"github.com/guilhebl/offergo/common/model"
+	"github.com/guilhebl/go-offer/common/config"
+	"github.com/guilhebl/go-offer/common/model"
 	"time"
 )
 

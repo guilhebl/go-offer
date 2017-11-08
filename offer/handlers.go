@@ -5,9 +5,9 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
-	"github.com/guilhebl/offergo/common/model"
-	"github.com/guilhebl/offergo/common/config"
-	"github.com/guilhebl/offergo/offer/walmart"
+	"github.com/guilhebl/go-offer/common/model"
+	"github.com/guilhebl/go-offer/common/config"
+	"github.com/guilhebl/go-offer/offer/walmart"
 	"strings"
 )
 
