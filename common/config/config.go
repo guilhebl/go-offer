@@ -14,7 +14,7 @@ var properties props.Properties
 func init() {
 	log.Printf("%s", "Init Config")
 
-	propsFile, err := props.ReadPropertiesFile("app-config.properties")
+	propsFile, err := props.ReadPropertiesFile("common/config/app-config.properties")
 	if err != nil {
 		log.Println("Error while reading config properties file")
 	}
@@ -33,11 +33,6 @@ func GetIntProperty(p string) int64 {
 
 func getHost() string {
 	return properties["protocol"] + properties["host"] + ":" + properties["port"] + "/"
-}
-
-// gets backend endpoint
-func GetEndpoint() string {
-	return getHost() + properties["productEndpointPath"]
 }
 
 func getImageFolderUrl() string {

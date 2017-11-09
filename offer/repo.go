@@ -1,12 +1,6 @@
 package offer
 
 import (
-	"bytes"
-	"encoding/json"
-	"fmt"
-	"log"
-	"net/http"
-
 	"github.com/guilhebl/go-offer/common/config"
 	"github.com/guilhebl/go-offer/common/model"
 	"github.com/guilhebl/go-offer/offer/walmart"
@@ -23,17 +17,14 @@ func SearchOffers(m map[string]string) *model.OfferList {
 
 	// build empty response
 	capacity := config.GetIntProperty("defaultOfferListCapacity")
-
-	list := &model.OfferList{
-		List:    make([]model.Offer, 10, capacity),
-		Summary: model.Summary{Page: 1, PageCount: 1, TotalCount: 0},
-	}
+	list := model.NewOfferList(make([]model.Offer, 0, capacity), 1, 1, 0)
 
 	// search providers
 	providers := getProvidersByCountry(country)
 
 	for i := 0; i < len(providers); i++ {
-		mergeSearchResponse(list, search(providers[i], m))
+		l := search(providers[i], m)
+		mergeSearchResponse(list, l)
 	}
 
 	return list

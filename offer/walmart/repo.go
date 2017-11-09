@@ -52,7 +52,7 @@ func SearchOffers(m map[string]string) *model.OfferList {
 		q.Add("lsPublisherId", affiliateId)
 		q.Add("query", p["query"])
 		q.Add("start", strconv.Itoa(start))
-
+		req.URL.RawQuery = q.Encode()
 		url = fmt.Sprintf(req.URL.String())
 		log.Printf("Walmart search: %s", url)
 
@@ -86,7 +86,7 @@ func SearchOffers(m map[string]string) *model.OfferList {
 		q.Add("responseGroup", responseGroup)
 		q.Add("apiKey", apiKey)
 		q.Add("lsPublisherId", affiliateId)
-
+		req.URL.RawQuery = q.Encode()
 		url = fmt.Sprintf(req.URL.String())
 		log.Printf("Walmart trending: %s", url)
 
@@ -115,7 +115,7 @@ func SearchOffers(m map[string]string) *model.OfferList {
 
 func buildTrendingResponse(r *TrendingResponse, page, pageSize int) *model.OfferList {
 	list := buildSearchItemList(r.Items)
-	l := len(r.Items)
+	l := len(list)
 	o := model.NewOfferList(list, page, l/pageSize, l)
 	return o
 }
@@ -127,15 +127,19 @@ func buildSearchResponse(r *SearchResponse, pageSize int) *model.OfferList {
 }
 
 func buildSearchItemList(items []SearchItem) []model.Offer {
-	list := make([]model.Offer, len(items))
+	list := make([]model.Offer, 0)
 	proxyRequired := strings.Index(config.GetProperty("marketplaceProvidersImageProxyRequired"), model.Walmart) != -1
 
 	for _, item := range items {
+		rate := 0.0
 
-		rate, err := strconv.ParseFloat(item.CustomerRating, 32)
-		if err != nil {
-			log.Println(err)
-			return nil
+		// format Rating string
+		if item.CustomerRating != "" {
+			formattedRate, err := strconv.ParseFloat(item.CustomerRating, 32)
+			if err != nil {
+				log.Println(err)
+				rate = formattedRate
+			}
 		}
 
 		o := model.NewOffer(
@@ -191,7 +195,7 @@ func GetOfferDetail(id string, idType string, country string) *model.OfferDetail
 	affiliateId := config.GetProperty("walmartAffiliateId")
 	timeout := time.Duration(config.GetIntProperty("marketplaceDefaultTimeout")) * time.Millisecond
 
-	if idType == "id" {
+	if idType == model.Id {
 		url := endpoint + "/" + path + "/" + id
 		req, err := http.NewRequest("GET", url, nil)
 
@@ -200,7 +204,7 @@ func GetOfferDetail(id string, idType string, country string) *model.OfferDetail
 		q.Add("format", "json")
 		q.Add("apiKey", apiKey)
 		q.Add("lsPublisherId", affiliateId)
-
+		req.URL.RawQuery = q.Encode()
 		url = fmt.Sprintf(req.URL.String())
 		log.Printf("Walmart get: %s", url)
 
@@ -222,6 +226,38 @@ func GetOfferDetail(id string, idType string, country string) *model.OfferDetail
 			return nil
 		}
 		return buildProductDetail(&entity, country)
+	} else if idType == model.Upc {
+		url := endpoint + "/" + path
+		req, err := http.NewRequest("GET", url, nil)
+
+		req.Header.Set("Accept", "application/json")
+		q := req.URL.Query()
+		q.Add(model.Upc, id)
+		q.Add("format", "json")
+		q.Add("apiKey", apiKey)
+		q.Add("lsPublisherId", affiliateId)
+		req.URL.RawQuery = q.Encode()
+		url = fmt.Sprintf(req.URL.String())
+		log.Printf("Walmart get by UPC: %s", url)
+
+		client := &http.Client{
+			Timeout: timeout,
+		}
+
+		resp, err := client.Do(req)
+		if err != nil {
+			log.Fatal("Do: ", err)
+			return nil
+		}
+		defer resp.Body.Close()
+
+		var entity BaseSearchResponse
+
+		if err := json.NewDecoder(resp.Body).Decode(&entity); err != nil {
+			log.Println(err)
+			return nil
+		}
+		return buildProductDetailSearchResponse(&entity, country)
 	}
 
 	return nil
@@ -261,4 +297,14 @@ func buildProductDetail(item *SearchItem, country string) *model.OfferDetail {
 	)
 
 	return det
+}
+
+func buildProductDetailSearchResponse(item *BaseSearchResponse, country string) *model.OfferDetail {
+	if item == nil || len(item.Items) == 0 {
+		return nil
+	}
+
+	p := item.Items[0]
+
+	return buildProductDetail(&p, country)
 }

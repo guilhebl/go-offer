@@ -5,10 +5,7 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
-	"github.com/guilhebl/go-offer/common/config"
 	"github.com/guilhebl/go-offer/common/model"
-	"github.com/guilhebl/go-offer/offer/walmart"
-	"strings"
 )
 
 // Searches for Trending and Promotional Deals in each marketplace provider

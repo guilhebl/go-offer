@@ -1,5 +1,9 @@
 package walmart
 
+type BaseSearchResponse struct {
+	Items []SearchItem `json:"items"`
+}
+
 type SearchResponse struct {
 	Query         string       `json:"query"`
 	Sort          string       `json:"sort"`
