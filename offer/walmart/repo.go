@@ -1,16 +1,17 @@
 package walmart
 
 import (
-	"fmt"
 	"encoding/json"
+	"fmt"
+	"github.com/guilhebl/go-offer/common/config"
+	"github.com/guilhebl/go-offer/common/model"
+	"github.com/guilhebl/go-offer/offer/monitor"
+	"github.com/guilhebl/go-strutil"
 	"log"
 	"net/http"
-	"github.com/guilhebl/go-offer/common/model"
-	"github.com/guilhebl/go-offer/common/config"
-	"github.com/guilhebl/go-offer/offer/monitor"
 	"strconv"
-	"time"
 	"strings"
+	"time"
 )
 
 // Searches for offers from Walmart
@@ -36,7 +37,7 @@ func SearchOffers(m map[string]string) *model.OfferList {
 
 	var start = 1
 	if page > 1 {
-		start = int(page) - 1 * int(pageSize) + 1
+		start = int(page) - 1*int(pageSize) + 1
 	}
 
 	if isKeywordSearch {
@@ -115,13 +116,13 @@ func SearchOffers(m map[string]string) *model.OfferList {
 func buildTrendingResponse(r *TrendingResponse, page, pageSize int) *model.OfferList {
 	list := buildSearchItemList(r.Items)
 	l := len(r.Items)
-	o := model.NewOfferList(list, page, l / pageSize, l)
+	o := model.NewOfferList(list, page, l/pageSize, l)
 	return o
 }
 
 func buildSearchResponse(r *SearchResponse, pageSize int) *model.OfferList {
 	list := buildSearchItemList(r.Items)
-	o := model.NewOfferList(list, r.Start / pageSize + 1, r.TotalResults / pageSize, r.TotalResults)
+	o := model.NewOfferList(list, r.Start/pageSize+1, r.TotalResults/pageSize, r.TotalResults)
 	return o
 }
 
@@ -129,7 +130,7 @@ func buildSearchItemList(items []SearchItem) []model.Offer {
 	list := make([]model.Offer, len(items))
 	proxyRequired := strings.Index(config.GetProperty("marketplaceProvidersImageProxyRequired"), model.Walmart) != -1
 
-	for _,item := range items {
+	for _, item := range items {
 
 		rate, err := strconv.ParseFloat(item.CustomerRating, 32)
 		if err != nil {
@@ -220,36 +221,44 @@ func GetOfferDetail(id string, idType string, country string) *model.OfferDetail
 			log.Println(err)
 			return nil
 		}
-		return buildProductDetail(&entity)
+		return buildProductDetail(&entity, country)
 	}
 
 	return nil
 }
 
-func buildProductDetail(item *SearchItem) *model.OfferDetail {
-	//proxyRequired := strings.Index(config.GetProperty("marketplaceProvidersImageProxyRequired"), model.Walmart) != -1
-	//
-	//rate, err := strconv.ParseFloat(item.CustomerRating, 32)
-	//if err != nil {
-	//	log.Println(err)
-	//	return nil
-	//}
+func buildProductDetail(item *SearchItem, country string) *model.OfferDetail {
+	proxyRequired := strings.Index(config.GetProperty("marketplaceProvidersImageProxyRequired"), model.Walmart) != -1
 
-	//o := model.NewOffer(
-	//	strconv.Itoa(item.ItemId),
-	//	item.Upc,
-	//	item.Name,
-	//	model.Walmart,
-	//	item.ProductTrackingUrl,
-	//	config.BuildImgUrlExternal(item.LargeImage, proxyRequired),
-	//	config.BuildImgUrl("walmart-logo.png"),
-	//	item.CategoryPath,
-	//	item.SalePrice,
-	//	float32(rate),
-	//	item.NumReviews,
-	//)
+	rate, err := strconv.ParseFloat(item.CustomerRating, 32)
+	if err != nil {
+		log.Println(err)
+		return nil
+	}
 
-	//det := model.NewOfferDetail()
+	o := model.NewOffer(
+		strconv.Itoa(item.ItemId),
+		item.Upc,
+		item.Name,
+		model.Walmart,
+		item.ProductTrackingUrl,
+		config.BuildImgUrlExternal(item.LargeImage, proxyRequired),
+		config.BuildImgUrl("walmart-logo.png"),
+		item.CategoryPath,
+		item.SalePrice,
+		float32(rate),
+		item.NumReviews,
+	)
 
-	return nil
+	attrs := make(map[string]string)
+	detItems := make([]model.OfferDetailItem, config.CountMarketplaceProviders(country))
+
+	det := model.NewOfferDetail(
+		*o,
+		strutil.FilterHtmlTags(item.LongDescription),
+		attrs,
+		detItems,
+	)
+
+	return det
 }

@@ -1,78 +1,100 @@
 package offer
 
 import (
-	"fmt"
+	"bytes"
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
-	"bytes"
 
-	"github.com/guilhebl/go-offer/common/model"
 	"github.com/guilhebl/go-offer/common/config"
+	"github.com/guilhebl/go-offer/common/model"
+	"github.com/guilhebl/go-offer/offer/walmart"
+	"strings"
 )
 
-func SearchOffers() model.OfferList {
-	endpoint := config.GetEndpoint()
-	url := fmt.Sprintf(endpoint)
+// Searches marketplace providers by keyword
+func SearchOffers(m map[string]string) *model.OfferList {
 
-	// Build the request
-	l := model.ListRequest{}
-	jsonValue, _ := json.Marshal(l)
-	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonValue))
-	var offerList model.OfferList
-
-	log.Println("search: %s", req)
-
-	if err != nil {
-		log.Fatal("NewRequest: ", err)
-		return offerList
+	country := m["country"]
+	if country == "" {
+		country = model.UnitedStates
 	}
 
-	client := &http.Client{}
+	// build empty response
+	capacity := config.GetIntProperty("defaultOfferListCapacity")
 
-	resp, err := client.Do(req)
-	if err != nil {
-		log.Fatal("Do: ", err)
-		return offerList
-	}
-	defer resp.Body.Close()
-
-	// Use json.Decode for reading streams of JSON data
-	if err := json.NewDecoder(resp.Body).Decode(&offerList); err != nil {
-		log.Println(err)
+	list := &model.OfferList{
+		List:    make([]model.Offer, 10, capacity),
+		Summary: model.Summary{Page: 1, PageCount: 1, TotalCount: 0},
 	}
 
-	return offerList
+	// search providers
+	providers := getProvidersByCountry(country)
+
+	for i := 0; i < len(providers); i++ {
+		mergeSearchResponse(list, search(providers[i], m))
+	}
+
+	return list
 }
 
-func GetOfferDetail(id string, idType string, source string) model.OfferDetail {
-	endpoint := config.GetEndpoint() + "/" + id + "?idType=" + idType + "&source=" + source
-	url := fmt.Sprintf(endpoint)
+func mergeSearchResponse(list *model.OfferList, list2 *model.OfferList) {
+	if list2 != nil && list2.TotalCount > 0 {
+		list.List = append(list.List, list2.List...)
+		list.TotalCount += list2.TotalCount
+		list.PageCount += list2.PageCount
+	}
+}
 
-	// Build the request
-	req, err := http.NewRequest("GET", url, nil)
-	var entity model.OfferDetail
+func search(provider string, m map[string]string) *model.OfferList {
+	switch provider {
+	case model.Walmart:
+		return walmart.SearchOffers(m)
+	}
+	return nil
+}
 
-	log.Println("getDetail: %s", req)
+func getProvidersByCountry(country string) []string {
+	switch country {
+	case model.Canada:
+		return strings.Split(config.GetProperty("marketplaceProvidersCanada"), ",")
+	default:
+		return strings.Split(config.GetProperty("marketplaceProviders"), ",")
+	}
+}
 
-	if err != nil {
-		log.Fatal("NewRequest: ", err)
-		return entity
+// Gets Product Detail from marketplace provider by Id and IdType, fetching competitors prices using UPC
+func GetOfferDetail(id, idType, source, country string) *model.OfferDetail {
+	det := getDetail(id, idType, source, country)
+
+	if det != nil && det.Offer.Upc != "" {
+		providers := getProvidersByCountry(country)
+		for i := 0; i < len(providers); i++ {
+			if p := providers[i]; p != source {
+				d := getDetail(det.Offer.Upc, model.Upc, providers[i], country)
+
+				// build detail item
+				detItem := model.NewOfferDetailItem(
+					d.Offer.PartyName,
+					d.Offer.SemanticName,
+					d.Offer.PartyImageFileUrl,
+					d.Offer.Price,
+					d.Offer.Rating,
+					d.Offer.NumReviews)
+
+				det.ProductDetailItems = append(det.ProductDetailItems, *detItem)
+			}
+		}
 	}
 
-	client := &http.Client{}
+	return det
+}
 
-	resp, err := client.Do(req)
-	if err != nil {
-		log.Fatal("Do: ", err)
-		return entity
+func getDetail(id, idType, source, country string) *model.OfferDetail {
+	switch source {
+	case model.Walmart:
+		return walmart.GetOfferDetail(id, idType, country)
 	}
-	defer resp.Body.Close()
-
-	// Use json.Decode for reading streams of JSON data
-	if err := json.NewDecoder(resp.Body).Decode(&entity); err != nil {
-		log.Println(err)
-	}
-
-	return entity
+	return nil
 }

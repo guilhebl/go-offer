@@ -1,9 +1,9 @@
 package monitor
 
 import (
-	"sync"
 	"github.com/guilhebl/go-offer/common/config"
 	"github.com/guilhebl/go-offer/common/model"
+	"sync"
 	"time"
 )
 
@@ -11,7 +11,7 @@ import (
 // controlling volume of calls being made to the external marketplace environment, making sure number
 // of calls per second are within the limits and boundaries of each provider API.
 type RequestMonitor struct {
-	lastCalls map[string]int64
+	lastCalls     map[string]int64
 	waitIntervals map[string]int64
 }
 
@@ -28,19 +28,19 @@ func GetInstance() *RequestMonitor {
 
 		lc := map[string]int64{
 			model.Walmart: 0,
-			model.Ebay: 0,
-			model.Amazon: 0,
+			model.Ebay:    0,
+			model.Amazon:  0,
 			model.BestBuy: 0,
 		}
 
 		wi := map[string]int64{
 			model.Walmart: walmartWaitInterval,
-			model.Ebay: eBayWaitInterval,
-			model.Amazon: amazonWaitInterval,
+			model.Ebay:    eBayWaitInterval,
+			model.Amazon:  amazonWaitInterval,
 			model.BestBuy: bestBuyWaitInterval,
 		}
 
-		instance = &RequestMonitor{lc,wi	}
+		instance = &RequestMonitor{lc, wi}
 	})
 	return instance
 }
@@ -52,7 +52,7 @@ func IsServiceAvailable(name string) bool {
 	now := timeMillis()
 	s := GetInstance()
 
-	if now - s.lastCalls[name] >= s.waitIntervals[name] {
+	if now-s.lastCalls[name] >= s.waitIntervals[name] {
 		s.lastCalls[name] = now
 		return true
 	}

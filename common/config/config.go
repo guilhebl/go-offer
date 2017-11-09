@@ -1,18 +1,18 @@
 package config
 
 import (
+	"fmt"
+	"github.com/guilhebl/go-props"
+	"github.com/guilhebl/xcrypto"
 	"log"
 	"strconv"
-	"github.com/guilhebl/xcrypto"
-	"github.com/guilhebl/go-props"
-	"fmt"
 	"strings"
 )
 
 var properties props.Properties
 
 func init() {
-	log.Printf("%s","Init Config")
+	log.Printf("%s", "Init Config")
 
 	propsFile, err := props.ReadPropertiesFile("app-config.properties")
 	if err != nil {
@@ -75,9 +75,31 @@ func BuildImgUrlExternal(s string, proxyRequired bool) string {
 // builds img from local assets folder
 func BuildImgUrl(s string) string {
 	img := s
-	if (img == "") {
+	if img == "" {
 		img = "image-placeholder.png"
 	}
 
 	return fmt.Sprintf(getImageFolderUrl() + img)
+}
+
+// returns max number of providers
+func CountMarketplaceProviders(country string) int {
+	var size int
+
+	switch country {
+
+	//Canada
+	case "can":
+		{
+			arr := strings.Split(GetProperty("marketplaceProvidersCanada"), ",")
+			size = len(arr)
+		}
+	default:
+		{
+			arr := strings.Split(GetProperty("marketplaceProviders"), ",")
+			size = len(arr)
+		}
+	}
+
+	return size
 }
