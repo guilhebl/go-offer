@@ -6,13 +6,41 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/guilhebl/go-offer/common/model"
+	"github.com/guilhebl/go-worker-pool"
 )
 
 // Searches for Trending and Promotional Deals in each marketplace provider
 func Index(w http.ResponseWriter, r *http.Request) {
 	// search with empty keyword
 	m := make(map[string]string)
-	list := SearchOffers(m)
+
+	// let's create a job with the payload
+	ret := make(chan interface{})
+	defer close(ret)
+	work := worker.NewJob(JobTypeSearch, m, ret)
+
+	// Push the work onto the queue.
+	module := GetInstance()
+	module.JobQueue <- work
+
+	// wait for response from Job
+	resp := <-ret
+
+	var list *model.OfferList
+
+	switch resp.(type) {
+	case model.OfferList:
+		{
+			list = resp.(*model.OfferList)
+		}
+	default:
+		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+		w.WriteHeader(http.StatusInternalServerError)
+		if err := json.NewEncoder(w).Encode(resp); err != nil {
+			panic(err)
+		}
+		return
+	}
 
 	// set response
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
@@ -35,13 +63,38 @@ func Search(w http.ResponseWriter, r *http.Request) {
 	}
 	defer r.Body.Close()
 
+	// let's create a job with the payload
+	ret := make(chan interface{})
+	defer close(ret)
 	m := req.Map()
-	list := SearchOffers(m)
+	work := worker.NewJob(JobTypeSearch, m, ret)
+
+	// Push the work onto the queue.
+	module := GetInstance()
+	module.JobQueue <- work
+
+	// wait for response from Job
+	resp := <-ret
+
+	var list *model.OfferList
+
+	switch resp.(type) {
+	case model.OfferList:
+		{
+			list = resp.(*model.OfferList)
+		}
+	default:
+		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+		w.WriteHeader(http.StatusInternalServerError)
+		if err := json.NewEncoder(w).Encode(resp); err != nil {
+			panic(err)
+		}
+		return
+	}
 
 	// set response
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
-
 	if err := json.NewEncoder(w).Encode(list); err != nil {
 		panic(err)
 	}
@@ -71,11 +124,38 @@ func Show(w http.ResponseWriter, r *http.Request) {
 		country = model.UnitedStates
 	}
 
-	offerDetail := GetOfferDetail(id, idType, source, country)
-	if offerDetail.Offer.Id != "" {
+	// let's create a job with the payload
+	ret := make(chan interface{})
+	defer close(ret)
+	work := worker.NewJob(JobTypeGet, buildGetParams(id, idType, source, country), ret)
+
+	// Push the work onto the queue.
+	module := GetInstance()
+	module.JobQueue <- work
+
+	// wait for response from Job
+	resp := <-ret
+
+	var detail *model.OfferDetail
+
+	switch resp.(type) {
+	case model.OfferDetail:
+		{
+			detail = resp.(*model.OfferDetail)
+		}
+	default:
+		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+		w.WriteHeader(http.StatusInternalServerError)
+		if err := json.NewEncoder(w).Encode(resp); err != nil {
+			panic(err)
+		}
+		return
+	}
+
+	if detail.Offer.Id != "" {
 		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 		w.WriteHeader(http.StatusOK)
-		if err := json.NewEncoder(w).Encode(offerDetail); err != nil {
+		if err := json.NewEncoder(w).Encode(*detail); err != nil {
 			panic(err)
 		}
 		return
@@ -87,4 +167,13 @@ func Show(w http.ResponseWriter, r *http.Request) {
 	if err := json.NewEncoder(w).Encode(model.JsonErr{Code: http.StatusNotFound, Text: "Not Found"}); err != nil {
 		panic(err)
 	}
+}
+
+func buildGetParams(id, idType, source, country string) map[string]string {
+	m := make(map[string]string, 0)
+	m["id"] = id
+	m["idType"] = idType
+	m["source"] = source
+	m["country"] = country
+	return m
 }

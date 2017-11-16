@@ -12,10 +12,11 @@ const (
 	Amazon  = "amazon.com"
 
 	// General
-	Name = "name"
-	Page = "page"
-	Id   = "id"
-	Upc  = "upc"
-	Ean  = "ean"
-	Isbn = "isbn"
+	Name   = "name"
+	Page   = "page"
+	Id     = "id"
+	IdType = "idType"
+	Upc    = "upc"
+	Ean    = "ean"
+	Isbn   = "isbn"
 )

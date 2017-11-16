@@ -5,6 +5,7 @@ import (
 	"github.com/guilhebl/go-offer/common/model"
 	"github.com/guilhebl/go-offer/offer/walmart"
 	"strings"
+	"log"
 )
 
 // Searches marketplace providers by keyword
@@ -55,8 +56,15 @@ func getProvidersByCountry(country string) []string {
 	}
 }
 
+// Validates Get request and if valid proceed to fetch Product Detail from marketplace provider by Id and IdType
+func GetOfferDetail(m map[string]string) *model.OfferDetail {
+	log.Printf("get: %v", m)
+
+	return getOfferDetail(m["id"], m["idType"], m["source"], m["country"])
+}
+
 // Gets Product Detail from marketplace provider by Id and IdType, fetching competitors prices using UPC
-func GetOfferDetail(id, idType, source, country string) *model.OfferDetail {
+func getOfferDetail(id, idType, source, country string) *model.OfferDetail {
 	det := getDetail(id, idType, source, country)
 
 	if det != nil && det.Offer.Upc != "" {
@@ -83,6 +91,8 @@ func GetOfferDetail(id, idType, source, country string) *model.OfferDetail {
 }
 
 func getDetail(id, idType, source, country string) *model.OfferDetail {
+	log.Printf("get: %s, %s, %s, %s", id, idType, source, country)
+
 	switch source {
 	case model.Walmart:
 		return walmart.GetOfferDetail(id, idType, country)
