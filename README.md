@@ -28,8 +28,30 @@ go build
 
 ### running
 
+after building run command
+
 ./go-offer
 
+
+### REST API methods
+
+1. Search Trending offers:
+
+```
+GET localhost:8080/offers
+```
+
+2. Search offers by keyword:
+
+```
+curl -H "Content-Type: application/json" -X POST -d '{ "searchColumns":[ { "name":"name", "value":"skyrim" } ], "sortOrder":"asc", "page":1, "rowsPerPage":10 }' http://localhost:8080/offers
+```
+
+3. Get Product Detail
+
+```
+GET localhost:8080/offers/887276234465?idType=upc&source=walmart.com
+```
 
 ### testing
 
