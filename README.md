@@ -7,6 +7,21 @@ Find out about prices, availability, features, reviews and more searching in one
 Join the project and help make the world a better palce for trade.
 
 
+## Getting started
+
+in order to get started you must first create your own API keys at:
+
+- Amazon Product Advertising API
+
+- Ebay Product Search API
+
+- Walmart API
+
+- BestBuy API
+
+after creating your api keys set the values in "app-config.properties" file
+
+
 ### building
 
 go build
@@ -14,6 +29,7 @@ go build
 ### running
 
 ./go-offer
+
 
 ### testing
 

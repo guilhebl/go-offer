@@ -8,10 +8,10 @@ import (
 )
 
 // centralized module manager which holds references to JobQueue and other global app scoped objects
-// Singleton enforcing at max. 1 Module per app.
+// Singleton enforcing the module will be initialized at max. once per app.
 type Module struct {
-	Dispatcher worker.Dispatcher
-	JobQueue chan worker.Job
+	Dispatcher job.WorkerPool
+	JobQueue   chan job.Job
 }
 
 var instance *Module
@@ -34,15 +34,14 @@ func newModule() *Module {
 	runtime.GOMAXPROCS(numCPUs + 1) // numCPUs hot threads + one for async tasks.
 	maxWorkers := numCPUs * 4
 
-	jobQueue := make(chan worker.Job)
+	jobQueue := make(chan job.Job)
 
 	module := Module{
-		Dispatcher: worker.NewDispatcher(maxWorkers),
-		JobQueue: jobQueue,
+		Dispatcher: job.NewWorkerPool(maxWorkers),
+		JobQueue:   jobQueue,
 	}
 
 	// A buffered channel that we can send work requests on.
-	runner := NewJobRunner()
-	module.Dispatcher.Run(jobQueue, &runner)
+	module.Dispatcher.Run(jobQueue)
 	return &module
 }

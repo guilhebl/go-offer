@@ -12,11 +12,22 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"github.com/guilhebl/go-worker-pool"
 )
 
-// Searches for offers from Walmart
-func SearchOffers(m map[string]string) *model.OfferList {
+// Creates Job for Searching offers from Walmart and returns a Channel with jobResults
+func SearchOffers(m map[string]string) *job.Job {
+	// create output channel
+	out := job.NewJobResultChannel()
 
+	// let's create a job with the payload
+	task := NewSearchTask()
+	job := job.NewJob(&task, m, out)
+	return &job
+}
+
+// Searches for offers from Walmart
+func search(m map[string]string) *model.OfferList {
 	// try to acquire lock from request Monitor
 	if !monitor.IsServiceAvailable(model.Walmart) {
 		log.Printf("Unable to acquire lock from Request Monitor")
@@ -180,9 +191,23 @@ func filterParams(m map[string]string) map[string]string {
 	return p
 }
 
+// Creates Job for fetching Product Detail and returns a Channel with jobResult
+func GetDetailJob(id, idType, country string) *job.Job {
+	// convert to map for job to consume
+	m := make(map[string]string)
+	m["id"], m["idType"], m["country"] = id, idType, country
+
+	// create output channel
+	out := job.NewJobResultChannel()
+
+	// let's create a job with the payload
+	task := NewGetDetailTask()
+	job := job.NewJob(&task, m, out)
+	return &job
+}
+
 // Search for a specific product detail either by Id or Upc
 func GetOfferDetail(id string, idType string, country string) *model.OfferDetail {
-
 	// try to acquire lock from request Monitor
 	if !monitor.IsServiceAvailable(model.Walmart) {
 		log.Printf("Unable to acquire lock from Request Monitor")
@@ -268,8 +293,8 @@ func buildProductDetail(item *SearchItem, country string) *model.OfferDetail {
 
 	rate, err := strconv.ParseFloat(item.CustomerRating, 32)
 	if err != nil {
-		log.Println(err)
-		return nil
+		log.Printf("error on parsing rate for item string: %s", item.CustomerRating)
+		rate = 0.0
 	}
 
 	o := model.NewOffer(
@@ -303,7 +328,6 @@ func buildProductDetailSearchResponse(item *BaseSearchResponse, country string) 
 	if item == nil || len(item.Items) == 0 {
 		return nil
 	}
-
 	p := item.Items[0]
 
 	return buildProductDetail(&p, country)

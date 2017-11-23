@@ -6,11 +6,11 @@ import (
 	"github.com/guilhebl/go-offer/offer/walmart"
 	"strings"
 	"log"
+	"github.com/guilhebl/go-worker-pool"
 )
 
 // Searches marketplace providers by keyword
 func SearchOffers(m map[string]string) *model.OfferList {
-
 	country := m["country"]
 	if country == "" {
 		country = model.UnitedStates
@@ -23,11 +23,25 @@ func SearchOffers(m map[string]string) *model.OfferList {
 	// search providers
 	providers := getProvidersByCountry(country)
 
+	// create a slice of jobResult outputs
+	jobOutputs := make([]<-chan job.JobResult, 0)
+
 	for i := 0; i < len(providers); i++ {
-		l := search(providers[i], m)
-		mergeSearchResponse(list, l)
+		job := search(providers[i], m)
+		if job != nil {
+			jobOutputs = append(jobOutputs, job.ReturnChannel)
+			// Push each job onto the queue.
+			GetInstance().JobQueue <- *job
+		}
 	}
 
+	// Consume the merged output from all jobs
+	out := job.Merge(jobOutputs...)
+	for r := range out {
+		if r.Error == nil {
+			mergeSearchResponse(list, r.Value.(*model.OfferList))
+		}
+	}
 	return list
 }
 
@@ -39,10 +53,10 @@ func mergeSearchResponse(list *model.OfferList, list2 *model.OfferList) {
 	}
 }
 
-func search(provider string, m map[string]string) *model.OfferList {
+// searches create a new Job to search in a provider that returns a OfferList channel
+func search(provider string, m map[string]string) *job.Job {
 	switch provider {
-	case model.Walmart:
-		return walmart.SearchOffers(m)
+		case model.Walmart: return walmart.SearchOffers(m)
 	}
 	return nil
 }
@@ -56,24 +70,34 @@ func getProvidersByCountry(country string) []string {
 	}
 }
 
-// Validates Get request and if valid proceed to fetch Product Detail from marketplace provider by Id and IdType
-func GetOfferDetail(m map[string]string) *model.OfferDetail {
-	log.Printf("get: %v", m)
-
-	return getOfferDetail(m["id"], m["idType"], m["source"], m["country"])
-}
-
 // Gets Product Detail from marketplace provider by Id and IdType, fetching competitors prices using UPC
-func getOfferDetail(id, idType, source, country string) *model.OfferDetail {
+func GetOfferDetail(id, idType, source, country string) *model.OfferDetail {
 	det := getDetail(id, idType, source, country)
 
+	// if product has Upc fetch competitors details in parallel using worker pool jobs
 	if det != nil && det.Offer.Upc != "" {
 		providers := getProvidersByCountry(country)
+
+		// create a slice of jobResult outputs
+		jobOutputs := make([]<-chan job.JobResult, 0)
+
 		for i := 0; i < len(providers); i++ {
 			if p := providers[i]; p != source {
-				d := getDetail(det.Offer.Upc, model.Upc, providers[i], country)
+				job := getDetailJob(det.Offer.Upc, model.Upc, providers[i], country)
+				if job != nil {
+					jobOutputs = append(jobOutputs, job.ReturnChannel)
+					// Push each job onto the queue.
+					GetInstance().JobQueue <- *job
+				}
+			}
+		}
 
+		// Consume the merged output from all jobs
+		out := job.Merge(jobOutputs...)
+		for r := range out {
+			if r.Error == nil {
 				// build detail item
+				d := r.Value.(*model.OfferDetail)
 				detItem := model.NewOfferDetailItem(
 					d.Offer.PartyName,
 					d.Offer.SemanticName,
@@ -90,6 +114,19 @@ func getOfferDetail(id, idType, source, country string) *model.OfferDetail {
 	return det
 }
 
+// creates a job to fetch a product detail from a given source using id and idType and country
+func getDetailJob(id, idType, source, country string) *job.Job {
+	log.Printf("getDetail Job: %s, %s, %s, %s", id, idType, source, country)
+
+	switch source {
+	case model.Walmart:
+		return walmart.GetDetailJob(id, idType, country)
+	}
+
+	return nil
+}
+
+// gets a product detail from a given source using id and idType and country
 func getDetail(id, idType, source, country string) *model.OfferDetail {
 	log.Printf("get: %s, %s, %s, %s", id, idType, source, country)
 
