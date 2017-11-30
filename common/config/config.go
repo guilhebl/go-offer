@@ -5,34 +5,42 @@ import (
 	"github.com/guilhebl/go-props"
 	"github.com/guilhebl/xcrypto"
 	"log"
-	"strconv"
 	"strings"
+	"sync"
 )
 
-var properties props.Properties
+var instance *props.Properties
+var once sync.Once
 
-func init() {
+func GetInstance() *props.Properties {
+	once.Do(func() {
+		instance = newProperties()
+	})
+	return instance
+}
+
+
+func newProperties() *props.Properties {
 	log.Printf("%s", "Init Config")
 
 	propsFile, err := props.ReadPropertiesFile("common/config/app-config.properties")
 	if err != nil {
-		log.Println("Error while reading config properties file")
+		log.Fatal(err)
 	}
 
-	properties = propsFile
+	return &propsFile
 }
 
 func GetProperty(p string) string {
-	return properties[p]
+	return GetInstance().GetProperty(p)
 }
 
 func GetIntProperty(p string) int64 {
-	prop, _ := strconv.ParseInt(GetProperty(p), 10, 0)
-	return prop
+	return GetInstance().GetIntProperty(p)
 }
 
 func getHost() string {
-	return properties["protocol"] + properties["host"] + ":" + properties["port"] + "/"
+	return GetProperty("protocol") + GetProperty("host") + ":" + GetProperty("port") + "/"
 }
 
 func getImageFolderUrl() string {

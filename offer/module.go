@@ -45,3 +45,22 @@ func newModule() *Module {
 	module.Dispatcher.Run(jobQueue)
 	return &module
 }
+
+// stops pool and closes JobQueue returns the result of closing both
+func (m *Module) Stop() bool {
+	log.Printf("%s", "Stopping Module")
+	m.Dispatcher.Stop()
+
+	// close the Job queue chan
+	close(m.JobQueue)
+
+	// empty queue
+	for x := range m.JobQueue {
+		_ = x // ignore channel var using blank identifier
+	}
+
+	// Make sure that the function does close the channel
+	_, ok := <-m.JobQueue
+
+	return ok
+}
