@@ -25,5 +25,5 @@ func TestGetInstance(t *testing.T) {
 	}
 
 	// Stop the Dispatcher pool and Check if it stopped properly and JobQueue is closed
-	module.Stop()
+	//	module.Stop()
 }

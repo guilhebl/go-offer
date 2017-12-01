@@ -1,9 +1,9 @@
 package walmart
 
 import (
+	"errors"
 	"github.com/guilhebl/go-worker-pool"
 	"log"
-	"errors"
 )
 
 // Executable Task implementation for walmart - get detail

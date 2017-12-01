@@ -1,8 +1,8 @@
 package walmart
 
 import (
-	"github.com/guilhebl/go-worker-pool"
 	"errors"
+	"github.com/guilhebl/go-worker-pool"
 )
 
 // Executable Task implementation for walmart - search

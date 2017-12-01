@@ -19,7 +19,6 @@ func GetInstance() *props.Properties {
 	return instance
 }
 
-
 func newProperties() *props.Properties {
 	log.Printf("%s", "Init Config")
 

@@ -4,9 +4,9 @@ import (
 	"github.com/guilhebl/go-offer/common/config"
 	"github.com/guilhebl/go-offer/common/model"
 	"github.com/guilhebl/go-offer/offer/walmart"
-	"strings"
-	"log"
 	"github.com/guilhebl/go-worker-pool"
+	"log"
+	"strings"
 )
 
 // Searches marketplace providers by keyword
@@ -56,7 +56,8 @@ func mergeSearchResponse(list *model.OfferList, list2 *model.OfferList) {
 // searches create a new Job to search in a provider that returns a OfferList channel
 func search(provider string, m map[string]string) *job.Job {
 	switch provider {
-		case model.Walmart: return walmart.SearchOffers(m)
+	case model.Walmart:
+		return walmart.SearchOffers(m)
 	}
 	return nil
 }
