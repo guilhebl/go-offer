@@ -7,7 +7,8 @@ import (
 // tests if app module is built correctly setting up worker pool and other global scoped objects
 func TestGetInstance(t *testing.T) {
 
-	module := GetInstance()
+	router := NewRouter()
+	module := BuildInstance(router)
 
 	if module == nil {
 		t.Error("Error while creating Module")
@@ -23,7 +24,4 @@ func TestGetInstance(t *testing.T) {
 	if &j == nil {
 		t.Error("Error while creating Module Dispatcher JobQueue")
 	}
-
-	// Stop the Dispatcher pool and Check if it stopped properly and JobQueue is closed
-	//	module.Stop()
 }

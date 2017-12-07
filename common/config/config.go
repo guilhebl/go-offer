@@ -105,3 +105,11 @@ func CountMarketplaceProviders(country string) int {
 
 	return size
 }
+
+//// fetches an external API endpoint and builds it URL
+//func GetApiServiceEndpoint(provider string) model.ServiceEndpoint {
+//	arr := strings.Split(GetProperty("marketplaceProviders"), ",")
+//	for _, p := range arr {
+//
+//	}
+//}

@@ -53,8 +53,8 @@ func search(m map[string]string) *model.OfferList {
 
 	if isKeywordSearch {
 		url := endpoint + "/" + config.GetProperty("walmartProductSearchPath")
-		req, err := http.NewRequest("GET", url, nil)
 
+		req, err := http.NewRequest("GET", url, nil)
 		req.Header.Set("Accept", "application/json")
 		q := req.URL.Query()
 		q.Add("format", "json")

@@ -8,18 +8,21 @@ import (
 )
 
 func main() {
-	log.Printf("%s", "Server starting on port 8080...")
-
-	// start module
-	initModule()
-
-	router := offer.NewRouter()
-
-	log.Fatal(http.ListenAndServe(":8080", router))
+	run()
 }
 
-func initModule() {
+func run() {
+	const defaultPort = ":8080"
+	log.Printf("Server starting - port %s ...", defaultPort)
 
+	// build module and setup server to listen at default port
+	startServer(defaultPort)
+}
+
+func startServer(port string) {
+	router := offer.NewRouter()
 	// inits app module setting up worker pool and other global scoped objects
-	offer.GetInstance()
+	offer.BuildInstance(router)
+
+	log.Fatal(http.ListenAndServe(port, router))
 }

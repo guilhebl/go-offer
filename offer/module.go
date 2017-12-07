@@ -1,6 +1,7 @@
 package offer
 
 import (
+	"github.com/gorilla/mux"
 	"github.com/guilhebl/go-worker-pool"
 	"log"
 	"runtime"
@@ -12,20 +13,25 @@ import (
 type Module struct {
 	Dispatcher job.WorkerPool
 	JobQueue   chan job.Job
+	Router     *mux.Router
 }
 
 var instance *Module
 var once sync.Once
 
-func GetInstance() *Module {
+func BuildInstance(router *mux.Router) *Module {
 	once.Do(func() {
-		instance = newModule()
+		instance = newModule(router)
 	})
 	return instance
 }
 
-func newModule() *Module {
-	log.Printf("%s", "New Module")
+func GetInstance() *Module {
+	return instance
+}
+
+func newModule(router *mux.Router) *Module {
+	log.Printf("New Module")
 
 	// fetch ENV var param ?
 	// maxWorker := os.Getenv("MAX_WORKERS")
@@ -39,6 +45,7 @@ func newModule() *Module {
 	module := Module{
 		Dispatcher: job.NewWorkerPool(maxWorkers),
 		JobQueue:   jobQueue,
+		Router:     router,
 	}
 
 	// A buffered channel that we can send work requests on.

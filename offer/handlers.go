@@ -32,7 +32,6 @@ func Index(w http.ResponseWriter, r *http.Request) {
 
 // Searches for offers from marketplace providers
 func Search(w http.ResponseWriter, r *http.Request) {
-
 	// decode request
 	decoder := json.NewDecoder(r.Body)
 	var req model.ListRequest
