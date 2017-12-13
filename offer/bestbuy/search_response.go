@@ -4,7 +4,7 @@ type SearchResponse struct {
 	From         int          `json:"from"`
 	To           int          `json:"to"`
 	Total        int          `json:"total"`
-	currentPage  int          `json:"currentPage"`
+	CurrentPage  int          `json:"currentPage"`
 	TotalPages   int          `json:"totalPages"`
 	QueryTime    string       `json:"queryTime"`
 	TotalTime    string       `json:"totalTime"`
