@@ -1,4 +1,4 @@
-package walmart
+package bestbuy
 
 import (
 	"errors"

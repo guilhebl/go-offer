@@ -3,6 +3,7 @@ package offer
 import (
 	"github.com/guilhebl/go-offer/common/config"
 	"github.com/guilhebl/go-offer/common/model"
+	"github.com/guilhebl/go-offer/offer/bestbuy"
 	"github.com/guilhebl/go-offer/offer/walmart"
 	"github.com/guilhebl/go-worker-pool"
 	"log"
@@ -58,7 +59,10 @@ func search(provider string, m map[string]string) *job.Job {
 	switch provider {
 	case model.Walmart:
 		return walmart.SearchOffers(m)
+	case model.BestBuy:
+		return bestbuy.SearchOffers(m)
 	}
+
 	return nil
 }
 
@@ -122,6 +126,8 @@ func getDetailJob(id, idType, source, country string) *job.Job {
 	switch source {
 	case model.Walmart:
 		return walmart.GetDetailJob(id, idType, country)
+	case model.BestBuy:
+		return bestbuy.GetDetailJob(id, idType, country)
 	}
 
 	return nil

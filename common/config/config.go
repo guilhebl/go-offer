@@ -46,6 +46,11 @@ func getImageFolderUrl() string {
 	return getHost() + "assets/images/"
 }
 
+// returns if this provider requires image proxy (HTTP/HTTPS)
+func IsProxyRequired(provider string) bool {
+	return strings.Index(GetProperty("marketplaceProvidersImageProxyRequired"), provider) != -1
+}
+
 // builds an img source from an external server should proxy if http is used to avoid security warns (HTTP/S MIXED MODE)
 // if empty string return img placeholder default
 func BuildImgUrlExternal(s string, proxyRequired bool) string {
@@ -84,6 +89,11 @@ func BuildImgUrl(s string) string {
 	return fmt.Sprintf(getImageFolderUrl() + img)
 }
 
+func CountMarketplaceProviderListSize() int {
+	arr := strings.Split(GetProperty("marketplaceProviders"), ",")
+	return len(arr)
+}
+
 // returns max number of providers
 func CountMarketplaceProviders(country string) int {
 	var size int
@@ -105,11 +115,3 @@ func CountMarketplaceProviders(country string) int {
 
 	return size
 }
-
-//// fetches an external API endpoint and builds it URL
-//func GetApiServiceEndpoint(provider string) model.ServiceEndpoint {
-//	arr := strings.Split(GetProperty("marketplaceProviders"), ",")
-//	for _, p := range arr {
-//
-//	}
-//}

@@ -8,7 +8,7 @@ import (
 	"github.com/guilhebl/go-offer/common/model"
 )
 
-// Searches for Trending and Promotional Deals in each marketplace provider
+// Searches with no keywords for Trending and Promotional Deals in each marketplace provider
 func Index(w http.ResponseWriter, r *http.Request) {
 	// search with empty keyword
 	m := make(map[string]string)
@@ -30,7 +30,7 @@ func Index(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// Searches for offers from marketplace providers
+// Searches for offers from marketplace providers using keyword and other filters
 func Search(w http.ResponseWriter, r *http.Request) {
 	// decode request
 	decoder := json.NewDecoder(r.Body)

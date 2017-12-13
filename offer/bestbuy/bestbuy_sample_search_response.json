@@ -1,0 +1,375 @@
+{
+  "from":1,
+  "to":10,
+  "currentPage":1,
+  "total":18,
+  "totalPages":2,
+  "queryTime":"0.018",
+  "totalTime":"0.041",
+  "partial":false,
+  "canonicalUrl":"/v1/products(search=\"skyrim\")?show=productId,upc,sku,name,salePrice,releaseDate,url,image,thumbnailImage,manufacturer,department,customerReviewAverage,customerReviewCount,categoryPath,new,linkShareAffiliateUrl&pageSize=10&LID=123456&format=json&apiKey=12345",
+  "products":[
+    {
+      "productId":5529006,
+      "upc":"849803052423",
+      "sku":5529006,
+      "name":"Funko - Elder Scrolls V: Skyrim Dovahkiin Pop! Vinyl Figure - Multi",
+      "salePrice":9.99,
+      "releaseDate":"2016-10-23",
+      "url":"https://api.bestbuy.com/click/-/5529006/pdp",
+      "image":"https://img.bbystatic.com/BestBuy_US/images/products/5529/5529006_sa.jpg",
+      "thumbnailImage":"https://img.bbystatic.com/BestBuy_US/images/products/5529/5529006_s.gif",
+      "manufacturer":"Funko",
+      "department":"INTERACTIVE SOFTWARE",
+      "customerReviewAverage":4.80,
+      "customerReviewCount":28,
+      "categoryPath":[
+        {
+          "id":"cat00000",
+          "name":"Best Buy"
+        },
+        {
+          "id":"pcmcat252700050006",
+          "name":"Drones, Toys & Collectibles"
+        },
+        {
+          "id":"pcmcat748302046148",
+          "name":"Licensed Collectibles"
+        },
+        {
+          "id":"pcmcat748302046227",
+          "name":"Video Game Collectibles"
+        }
+      ],
+      "new":false,
+      "linkShareAffiliateUrl":"https://api.bestbuy.com/click/-/5529006/pdp?LID=12345678"
+    },
+    {
+      "productId":5589809,
+      "upc":"849803086916",
+      "sku":5589809,
+      "name":"Funko - Dorbz Skyrim Dovahkiin - Brown",
+      "salePrice":4.99,
+      "releaseDate":"2016-10-23",
+      "url":"https://api.bestbuy.com/click/-/5589809/pdp",
+      "image":"https://img.bbystatic.com/BestBuy_US/images/products/5589/5589809_sa.jpg",
+      "thumbnailImage":"https://img.bbystatic.com/BestBuy_US/images/products/5589/5589809_s.gif",
+      "manufacturer":"Funko",
+      "department":"INTERACTIVE SOFTWARE",
+      "customerReviewAverage":4.80,
+      "customerReviewCount":19,
+      "categoryPath":[
+        {
+          "id":"cat00000",
+          "name":"Best Buy"
+        },
+        {
+          "id":"pcmcat252700050006",
+          "name":"Drones, Toys & Collectibles"
+        },
+        {
+          "id":"pcmcat748302046148",
+          "name":"Licensed Collectibles"
+        },
+        {
+          "id":"pcmcat748302046769",
+          "name":"Funko Collectibles"
+        }
+      ],
+      "new":false,
+      "linkShareAffiliateUrl":"https://api.bestbuy.com/click/-/5589809/pdp?LID=12345678"
+    },
+    {
+      "productId":1000006882,
+      "upc":null,
+      "sku":1000006883,
+      "name":"Skyrim Special Edition - PlayStation 4 [Digital Download]",
+      "salePrice":59.99,
+      "releaseDate":null,
+      "url":"https://api.bestbuy.com/click/-/1000006883/pdp",
+      "image":null,
+      "thumbnailImage":"https://img.bbystatic.com/BestBuy_US/images/products/00/006/1000006883_pr2.png",
+      "manufacturer":null,
+      "department":"INTERACTIVE SOFTWARE",
+      "customerReviewAverage":null,
+      "customerReviewCount":null,
+      "categoryPath":[
+        {
+          "id":"cat00000",
+          "name":"Best Buy"
+        },
+        {
+          "id":"abcat0700000",
+          "name":"Video Games"
+        },
+        {
+          "id":"pcmcat295700050012",
+          "name":"PlayStation 4"
+        },
+        {
+          "id":"pcmcat1497464881849",
+          "name":"PlayStation Digital"
+        },
+        {
+          "id":"pcmcat303600050006",
+          "name":"PS4 Game Downloads"
+        }
+      ],
+      "new":false,
+      "linkShareAffiliateUrl":"https://api.bestbuy.com/click/-/1000006883/pdp?LID=12345678"
+    },
+    {
+      "productId":1000006884,
+      "upc":null,
+      "sku":1000006885,
+      "name":"Skyrim Special Edition - Xbox One [Digital Download]",
+      "salePrice":59.99,
+      "releaseDate":null,
+      "url":"https://api.bestbuy.com/click/-/1000006885/pdp",
+      "image":null,
+      "thumbnailImage":"https://img.bbystatic.com/BestBuy_US/images/products/00/006/1000006885_pr2.png",
+      "manufacturer":null,
+      "department":"INTERACTIVE SOFTWARE",
+      "customerReviewAverage":null,
+      "customerReviewCount":null,
+      "categoryPath":[
+        {
+          "id":"cat00000",
+          "name":"Best Buy"
+        },
+        {
+          "id":"abcat0700000",
+          "name":"Video Games"
+        },
+        {
+          "id":"pcmcat1497456762821",
+          "name":"Digital Gaming"
+        },
+        {
+          "id":"pcmcat153600050007",
+          "name":"Game Downloads"
+        },
+        {
+          "id":"pcmcat303600050008",
+          "name":"Xbox One Game Downloads"
+        }
+      ],
+      "new":false,
+      "linkShareAffiliateUrl":"https://api.bestbuy.com/click/-/1000006885/pdp?LID=12345678"
+    },
+    {
+      "productId":null,
+      "upc":null,
+      "sku":1000008801,
+      "name":"Skyrim VR Digital - PlayStation 4 [Digital Download]",
+      "salePrice":59.99,
+      "releaseDate":null,
+      "url":"https://api.bestbuy.com/click/-/1000008801/pdp",
+      "image":null,
+      "thumbnailImage":"https://img.bbystatic.com/BestBuy_US/images/products/00/008/1000008801_pr2.png",
+      "manufacturer":null,
+      "department":"INTERACTIVE SOFTWARE",
+      "customerReviewAverage":null,
+      "customerReviewCount":null,
+      "categoryPath":[
+        {
+          "id":"cat00000",
+          "name":"Best Buy"
+        },
+        {
+          "id":"abcat0700000",
+          "name":"Video Games"
+        },
+        {
+          "id":"pcmcat295700050012",
+          "name":"PlayStation 4"
+        },
+        {
+          "id":"pcmcat303600050012",
+          "name":"PS4 Accessories"
+        },
+        {
+          "id":"pcmcat748302046785",
+          "name":"PlayStation VR"
+        },
+        {
+          "id":"pcmcat748302046791",
+          "name":"PlayStation VR Games"
+        }
+      ],
+      "new":false,
+      "linkShareAffiliateUrl":"https://api.bestbuy.com/click/-/1000008801/pdp?LID=12345678"
+    },
+    {
+      "productId":1000006906,
+      "upc":null,
+      "sku":1000006907,
+      "name":"Elder Scrolls V Skyrim Special Edition eGuide - Prima Games Digital [Digital Download Add-On]",
+      "salePrice":9.99,
+      "releaseDate":null,
+      "url":"https://api.bestbuy.com/click/-/1000006907/pdp",
+      "image":null,
+      "thumbnailImage":"https://img.bbystatic.com/BestBuy_US/images/products/00/006/1000006907_pr2.png",
+      "manufacturer":null,
+      "department":"INTERACTIVE SOFTWARE",
+      "customerReviewAverage":null,
+      "customerReviewCount":null,
+      "categoryPath":[
+        {
+          "id":"cat00000",
+          "name":"Best Buy"
+        },
+        {
+          "id":"abcat0700000",
+          "name":"Video Games"
+        },
+        {
+          "id":"abcat0711000",
+          "name":"Game Guides"
+        }
+      ],
+      "new":false,
+      "linkShareAffiliateUrl":"https://api.bestbuy.com/click/-/1000006907/pdp?LID=12345678"
+    },
+    {
+      "productId":1218309065976,
+      "upc":"093155117631",
+      "sku":2095189,
+      "name":"The Elder Scrolls V: Skyrim - Xbox 360",
+      "salePrice":14.99,
+      "releaseDate":"2011-11-11",
+      "url":"https://api.bestbuy.com/click/-/2095189/pdp",
+      "image":"https://img.bbystatic.com/BestBuy_US/images/products/2095/2095189_sa.jpg",
+      "thumbnailImage":"https://img.bbystatic.com/BestBuy_US/images/products/2095/2095189_s.gif",
+      "manufacturer":"Bethesda",
+      "department":"INTERACTIVE SOFTWARE",
+      "customerReviewAverage":4.70,
+      "customerReviewCount":269,
+      "categoryPath":[
+        {
+          "id":"cat00000",
+          "name":"Best Buy"
+        },
+        {
+          "id":"abcat0700000",
+          "name":"Video Games"
+        },
+        {
+          "id":"abcat0701000",
+          "name":"Xbox 360"
+        },
+        {
+          "id":"abcat0701002",
+          "name":"Xbox 360 Games"
+        }
+      ],
+      "new":false,
+      "linkShareAffiliateUrl":"https://api.bestbuy.com/click/-/2095189/pdp?LID=12345678"
+    },
+    {
+      "productId":1218309074814,
+      "upc":"093155117624",
+      "sku":2095198,
+      "name":"The Elder Scrolls V: Skyrim - PlayStation 3",
+      "salePrice":14.99,
+      "releaseDate":"2011-11-11",
+      "url":"https://api.bestbuy.com/click/-/2095198/pdp",
+      "image":"https://img.bbystatic.com/BestBuy_US/images/products/2095/2095198_sa.jpg",
+      "thumbnailImage":"https://img.bbystatic.com/BestBuy_US/images/products/2095/2095198_s.gif",
+      "manufacturer":"Bethesda",
+      "department":"INTERACTIVE SOFTWARE",
+      "customerReviewAverage":4.40,
+      "customerReviewCount":219,
+      "categoryPath":[
+        {
+          "id":"cat00000",
+          "name":"Best Buy"
+        },
+        {
+          "id":"abcat0700000",
+          "name":"Video Games"
+        },
+        {
+          "id":"abcat0703000",
+          "name":"PlayStation 3"
+        },
+        {
+          "id":"abcat0703002",
+          "name":"PS3 Games"
+        }
+      ],
+      "new":false,
+      "linkShareAffiliateUrl":"https://api.bestbuy.com/click/-/2095198/pdp?LID=12345678"
+    },
+    {
+      "productId":5626200,
+      "upc":"600603210488",
+      "sku":5626200,
+      "name":"The Elder Scrolls V: Skyrim Special Edition Best Buy Exclusive Dragonborn Bundle - Xbox One",
+      "salePrice":74.99,
+      "releaseDate":"2016-10-28",
+      "url":"https://api.bestbuy.com/click/-/5626200/pdp",
+      "image":"https://img.bbystatic.com/BestBuy_US/images/products/5626/5626200_sa.jpg",
+      "thumbnailImage":"https://img.bbystatic.com/BestBuy_US/images/products/5626/5626200_s.gif",
+      "manufacturer":"Bethesda",
+      "department":"INTERACTIVE SOFTWARE",
+      "customerReviewAverage":4.80,
+      "customerReviewCount":253,
+      "categoryPath":[
+        {
+          "id":"cat00000",
+          "name":"Best Buy"
+        },
+        {
+          "id":"abcat0700000",
+          "name":"Video Games"
+        },
+        {
+          "id":"pcmcat300300050002",
+          "name":"Xbox One"
+        },
+        {
+          "id":"pcmcat303600050005",
+          "name":"Xbox One Games"
+        }
+      ],
+      "new":false,
+      "linkShareAffiliateUrl":"https://api.bestbuy.com/click/-/5626200/pdp?LID=12345678"
+    },
+    {
+      "productId":5626700,
+      "upc":"600603210471",
+      "sku":5626700,
+      "name":"The Elder Scrolls V: Skyrim Special Edition Best Buy Exclusive Dragonborn Bundle - PlayStation 4",
+      "salePrice":74.99,
+      "releaseDate":"2016-10-28",
+      "url":"https://api.bestbuy.com/click/-/5626700/pdp",
+      "image":"https://img.bbystatic.com/BestBuy_US/images/products/5626/5626700_sa.jpg",
+      "thumbnailImage":"https://img.bbystatic.com/BestBuy_US/images/products/5626/5626700_s.gif",
+      "manufacturer":"Bethesda",
+      "department":"INTERACTIVE SOFTWARE",
+      "customerReviewAverage":4.80,
+      "customerReviewCount":261,
+      "categoryPath":[
+        {
+          "id":"cat00000",
+          "name":"Best Buy"
+        },
+        {
+          "id":"abcat0700000",
+          "name":"Video Games"
+        },
+        {
+          "id":"pcmcat295700050012",
+          "name":"PlayStation 4"
+        },
+        {
+          "id":"pcmcat296300050018",
+          "name":"PS4 Games"
+        }
+      ],
+      "new":false,
+      "linkShareAffiliateUrl":"https://api.bestbuy.com/click/-/5626700/pdp?LID=12345678"
+    }
+  ]
+}

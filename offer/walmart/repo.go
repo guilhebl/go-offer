@@ -11,7 +11,6 @@ import (
 	"log"
 	"net/http"
 	"strconv"
-	"strings"
 	"time"
 )
 
@@ -38,7 +37,7 @@ func search(m map[string]string) *model.OfferList {
 	p := filterParams(m)
 
 	endpoint := config.GetProperty("walmartEndpoint")
-	isKeywordSearch := p["query"] != ""
+	isKeywordSearch := p[model.Query] != ""
 	page, _ := strconv.ParseInt(p[model.Page], 10, 0)
 	pageSize := int(config.GetIntProperty("walmartDefaultPageSize"))
 	responseGroup := config.GetProperty("walmartSearchResponseGroup")
@@ -52,7 +51,8 @@ func search(m map[string]string) *model.OfferList {
 	}
 
 	if isKeywordSearch {
-		url := endpoint + "/" + config.GetProperty("walmartProductSearchPath")
+		path := config.GetProperty("walmartProductSearchPath")
+		url := fmt.Sprintf("%s/%s", endpoint, path)
 
 		req, err := http.NewRequest("GET", url, nil)
 		req.Header.Set("Accept", "application/json")
@@ -86,9 +86,9 @@ func search(m map[string]string) *model.OfferList {
 		}
 		return buildSearchResponse(&entity, pageSize)
 	} else {
-
 		// search trending items if no keyword provided
-		url := endpoint + "/" + config.GetProperty("walmartProductTrendingPath")
+		path := config.GetProperty("walmartProductTrendingPath")
+		url := fmt.Sprintf("%s/%s", endpoint, path)
 		req, err := http.NewRequest("GET", url, nil)
 
 		req.Header.Set("Accept", "application/json")
@@ -139,7 +139,7 @@ func buildSearchResponse(r *SearchResponse, pageSize int) *model.OfferList {
 
 func buildSearchItemList(items []SearchItem) []model.Offer {
 	list := make([]model.Offer, 0)
-	proxyRequired := strings.Index(config.GetProperty("marketplaceProvidersImageProxyRequired"), model.Walmart) != -1
+	proxyRequired := config.IsProxyRequired(model.Walmart)
 
 	for _, item := range items {
 		rate := 0.0
@@ -178,7 +178,7 @@ func filterParams(m map[string]string) map[string]string {
 
 	// get search keyword phrase
 	if m[model.Name] != "" {
-		p["query"] = m[model.Name]
+		p[model.Query] = m[model.Name]
 	}
 
 	// get page - defaults to 1
@@ -208,6 +208,8 @@ func GetDetailJob(id, idType, country string) *job.Job {
 
 // Search for a specific product detail either by Id or Upc
 func GetOfferDetail(id string, idType string, country string) *model.OfferDetail {
+	log.Printf("Get Detail: %s, %s, %s", id, idType, country)
+
 	// try to acquire lock from request Monitor
 	if !monitor.IsServiceAvailable(model.Walmart) {
 		log.Printf("Unable to acquire lock from Request Monitor")
@@ -221,7 +223,7 @@ func GetOfferDetail(id string, idType string, country string) *model.OfferDetail
 	timeout := time.Duration(config.GetIntProperty("marketplaceDefaultTimeout")) * time.Millisecond
 
 	if idType == model.Id {
-		url := endpoint + "/" + path + "/" + id
+		url := fmt.Sprintf("%s/%s/%s", endpoint, path, id)
 		req, err := http.NewRequest("GET", url, nil)
 
 		req.Header.Set("Accept", "application/json")
@@ -250,7 +252,7 @@ func GetOfferDetail(id string, idType string, country string) *model.OfferDetail
 			log.Println(err)
 			return nil
 		}
-		return buildProductDetail(&entity, country)
+		return buildProductDetail(&entity)
 	} else if idType == model.Upc {
 		url := endpoint + "/" + path
 		req, err := http.NewRequest("GET", url, nil)
@@ -282,14 +284,14 @@ func GetOfferDetail(id string, idType string, country string) *model.OfferDetail
 			log.Println(err)
 			return nil
 		}
-		return buildProductDetailSearchResponse(&entity, country)
+		return buildProductDetailSearchResponse(&entity)
 	}
 
 	return nil
 }
 
-func buildProductDetail(item *SearchItem, country string) *model.OfferDetail {
-	proxyRequired := strings.Index(config.GetProperty("marketplaceProvidersImageProxyRequired"), model.Walmart) != -1
+func buildProductDetail(item *SearchItem) *model.OfferDetail {
+	proxyRequired := config.IsProxyRequired(model.Walmart)
 
 	rate, err := strconv.ParseFloat(item.CustomerRating, 32)
 	if err != nil {
@@ -312,7 +314,7 @@ func buildProductDetail(item *SearchItem, country string) *model.OfferDetail {
 	)
 
 	attrs := make(map[string]string)
-	detItems := make([]model.OfferDetailItem, config.CountMarketplaceProviders(country))
+	detItems := make([]model.OfferDetailItem, config.CountMarketplaceProviderListSize())
 
 	det := model.NewOfferDetail(
 		*o,
@@ -324,11 +326,11 @@ func buildProductDetail(item *SearchItem, country string) *model.OfferDetail {
 	return det
 }
 
-func buildProductDetailSearchResponse(item *BaseSearchResponse, country string) *model.OfferDetail {
+func buildProductDetailSearchResponse(item *BaseSearchResponse) *model.OfferDetail {
 	if item == nil || len(item.Items) == 0 {
 		return nil
 	}
 	p := item.Items[0]
 
-	return buildProductDetail(&p, country)
+	return buildProductDetail(&p)
 }
