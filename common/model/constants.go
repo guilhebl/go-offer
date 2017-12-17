@@ -2,6 +2,7 @@ package model
 
 const (
 	// Country Constants
+	Country      = "country"
 	UnitedStates = "usa"
 	Canada       = "can"
 

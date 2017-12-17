@@ -157,7 +157,7 @@ func buildTrendingItemList(items []TrendingItem) []model.Offer {
 
 func buildSearchResponse(r *SearchResponse) *model.OfferList {
 	list := buildSearchItemList(r.Products)
-	o := model.NewOfferList(list, r.currentPage, r.TotalPages, r.Total)
+	o := model.NewOfferList(list, r.CurrentPage, r.TotalPages, r.Total)
 	return o
 }
 

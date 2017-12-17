@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"github.com/guilhebl/go-offer/common/model"
 	"github.com/guilhebl/go-props"
 	"github.com/guilhebl/xcrypto"
 	"log"
@@ -94,14 +95,14 @@ func CountMarketplaceProviderListSize() int {
 	return len(arr)
 }
 
-// returns max number of providers
+// returns max number of providers - default country USA
 func CountMarketplaceProviders(country string) int {
 	var size int
 
 	switch country {
 
 	//Canada
-	case "can":
+	case model.Canada:
 		{
 			arr := strings.Split(GetProperty("marketplaceProvidersCanada"), ",")
 			size = len(arr)

@@ -54,17 +54,27 @@ func readFile(path string) []byte {
 	return dat
 }
 
+const (
+	WalmartTrendingUrl = "http://api.walmartlabs.com/v1/trends"
+	WalmartSearchUrl   = "https://api.walmartlabs.com/search"
+	BestBuyTrendingUrl = "https://api.bestbuy.com/beta/products/trendingViewed"
+	BestBuySearchUrl   = "https://api.bestbuy.com/v1/products"
+	EbaySearchUrl      = "http://svcs.ebay.com/services/search/FindingService/v1"
+)
+
 // returns the bytes of a corresponding mock API call for an external resource
 func getJsonMockBytes(url string) []byte {
 	switch url {
-	case "http://api.walmartlabs.com/v1/trends":
+	case WalmartTrendingUrl:
 		return readFile("offer/walmart/walmart_sample_trending_response.json")
-	case "https://api.walmartlabs.com/search":
+	case WalmartSearchUrl:
 		return readFile("offer/walmart/walmart_sample_search_response.json")
-	case "https://api.bestbuy.com/beta/products/trendingViewed":
+	case BestBuyTrendingUrl:
 		return readFile("offer/bestbuy/bestbuy_sample_trending_response.json")
-	case "https://api.bestbuy.com/v1/products":
+	case BestBuySearchUrl:
 		return readFile("offer/bestbuy/bestbuy_sample_search_response.json")
+	case EbaySearchUrl:
+		return readFile("offer/ebay/ebay_sample_search_response.json")
 
 	default:
 		return nil
@@ -89,12 +99,10 @@ func TestSearch(t *testing.T) {
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
 
-	// Walmart
-	walmartUrl := "http://api.walmartlabs.com/v1/trends"
-	registerMockResponder("GET", walmartUrl, 200)
-
-	bestbuyUrl := "https://api.bestbuy.com/beta/products/trendingViewed"
-	registerMockResponder("GET", bestbuyUrl, 200)
+	// External Vendor Apis
+	registerMockResponder("GET", WalmartTrendingUrl, 200)
+	registerMockResponder("GET", BestBuyTrendingUrl, 200)
+	registerMockResponder("GET", EbaySearchUrl, 200)
 
 	// call our local server API
 	endpoint := "http://localhost:8080/"
@@ -112,9 +120,13 @@ func TestSearch(t *testing.T) {
 	bestBuySnippet := `{"id":"5714687","upc":"","name":"Alienware - Aurora R6 Desktop - Intel Core i7 - 16GB Memory - NVIDIA GeForce GTX 1070 - 256GB Solid State Drive + 1TB Hard Drive - Silver","partyName":"bestbuy.com"`
 	assert.True(t, strings.Contains(body, bestBuySnippet))
 
+	ebaySnippet := `,{"id":"262954865748","upc":"","name":"The Elder Scrolls V: Skyrim - Greatest Hits PS3 [Brand New]","partyName":"ebay.com"`
+	assert.True(t, strings.Contains(body, ebaySnippet))
+
 	// get the amount of calls for the registered responders
-	assertCallsMade(t, "GET", walmartUrl, 1)
-	assertCallsMade(t, "GET", bestbuyUrl, 1)
+	assertCallsMade(t, "GET", WalmartTrendingUrl, 1)
+	assertCallsMade(t, "GET", BestBuyTrendingUrl, 1)
+	assertCallsMade(t, "GET", EbaySearchUrl, 1)
 }
 
 func assertCallsMade(t *testing.T, httpMethod, url string, expected int) {
