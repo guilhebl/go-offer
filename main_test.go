@@ -62,15 +62,26 @@ const (
 	EbaySearchUrl      = "http://svcs.ebay.com/services/search/FindingService/v1"
 )
 
-// returns the bytes of a corresponding mock API call for an external resource
-func getJsonMockBytes(url string) []byte {
+// returns the bytes of a corresponding mock API call for an external resource for the 'Trending' API CALL
+func getJsonBytesTrendingMock(url string) []byte {
 	switch url {
 	case WalmartTrendingUrl:
 		return readFile("offer/walmart/walmart_sample_trending_response.json")
-	case WalmartSearchUrl:
-		return readFile("offer/walmart/walmart_sample_search_response.json")
 	case BestBuyTrendingUrl:
 		return readFile("offer/bestbuy/bestbuy_sample_trending_response.json")
+	case EbaySearchUrl:
+		return readFile("offer/ebay/ebay_sample_trending_response.json")
+
+	default:
+		return nil
+	}
+}
+
+// returns the bytes of a corresponding mock API call for an external resource for the 'Search' API CALL
+func getJsonBytesSearchMock(url string) []byte {
+	switch url {
+	case WalmartSearchUrl:
+		return readFile("offer/walmart/walmart_sample_search_response.json")
 	case BestBuySearchUrl:
 		return readFile("offer/bestbuy/bestbuy_sample_search_response.json")
 	case EbaySearchUrl:
@@ -89,7 +100,7 @@ func executeRequest(req *http.Request) *httptest.ResponseRecorder {
 
 func registerMockResponder(httpMethod, apiUrl string, status int) {
 	log.Printf("Mocking Search: %s %d - %s", httpMethod, status, apiUrl)
-	httpmock.RegisterResponder(httpMethod, apiUrl, httpmock.NewBytesResponder(status, getJsonMockBytes(apiUrl)))
+	httpmock.RegisterResponder(httpMethod, apiUrl, httpmock.NewBytesResponder(status, getJsonBytesTrendingMock(apiUrl)))
 }
 
 // Tests basic Search (no keywords) that returns trending results from external APIs

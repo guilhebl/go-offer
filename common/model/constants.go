@@ -24,4 +24,7 @@ const (
 	Query        = "query"
 	SpecialOffer = "special offer"
 	Manufacturer = "manufacturer"
+	Model        = "model"
+	Brand        = "brand"
+	Publisher    = "publisher"
 )

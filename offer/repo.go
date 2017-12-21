@@ -3,6 +3,7 @@ package offer
 import (
 	"github.com/guilhebl/go-offer/common/config"
 	"github.com/guilhebl/go-offer/common/model"
+	"github.com/guilhebl/go-offer/offer/amazon"
 	"github.com/guilhebl/go-offer/offer/bestbuy"
 	"github.com/guilhebl/go-offer/offer/ebay"
 	"github.com/guilhebl/go-offer/offer/walmart"
@@ -58,6 +59,8 @@ func mergeSearchResponse(list *model.OfferList, list2 *model.OfferList) {
 // searches create a new Job to search in a provider that returns a OfferList channel
 func search(provider string, m map[string]string) *job.Job {
 	switch provider {
+	case model.Amazon:
+		return amazon.SearchOffers(m)
 	case model.Walmart:
 		return walmart.SearchOffers(m)
 	case model.BestBuy:
@@ -127,6 +130,8 @@ func getDetailJob(id, idType, source, country string) *job.Job {
 	log.Printf("getDetail Job: %s, %s, %s, %s", id, idType, source, country)
 
 	switch source {
+	case model.Amazon:
+		return amazon.GetDetailJob(id, idType, country)
 	case model.Walmart:
 		return walmart.GetDetailJob(id, idType, country)
 	case model.BestBuy:
@@ -143,6 +148,8 @@ func getDetail(id, idType, source, country string) *model.OfferDetail {
 	log.Printf("get: %s, %s, %s, %s", id, idType, source, country)
 
 	switch source {
+	case model.Amazon:
+		return amazon.GetOfferDetail(id, idType, country)
 	case model.Walmart:
 		return walmart.GetOfferDetail(id, idType, country)
 	case model.BestBuy:
