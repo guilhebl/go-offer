@@ -68,7 +68,6 @@ func search(m map[string]string) *model.OfferList {
 
 	req.URL.RawQuery = q.Encode()
 	url = fmt.Sprintf(req.URL.String())
-	log.Printf("Ebay search: %s", url)
 
 	client := &http.Client{
 		Timeout: timeout,
@@ -84,9 +83,6 @@ func search(m map[string]string) *model.OfferList {
 	var entity SearchResponse
 
 	if err := json.NewDecoder(resp.Body).Decode(&entity); err != nil {
-		fmt.Printf("error %v", resp.Body)
-		fmt.Printf("error code %d", resp.StatusCode)
-
 		log.Println(err)
 		return nil
 	}
@@ -111,16 +107,11 @@ func getGlobalId(country string) string {
 
 // builds Offer list response mapping from vendor specific params
 func buildSearchResponse(r *SearchResponse) *model.OfferList {
-	if len(r.FindItemsByKeywordsResponse) == 0 {
+	if len(r.FindItemsByKeywordsResponse) == 0 || len(r.FindItemsByKeywordsResponse[0].PaginationOutput) == 0 {
 		return nil
 	}
 
 	head := r.FindItemsByKeywordsResponse[0]
-
-	if len(head.PaginationOutput) == 0 {
-		fmt.Printf("%v = ", r)
-		return nil
-	}
 	pg := head.PaginationOutput[0]
 
 	page, err := strconv.Atoi(pg.PageNumber[0])

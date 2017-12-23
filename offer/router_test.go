@@ -2,9 +2,9 @@ package offer
 
 import (
 	"github.com/gorilla/mux"
+	"github.com/stretchr/testify/assert"
 	"strings"
 	"testing"
-	"github.com/stretchr/testify/assert"
 )
 
 // tests if router is built correctly and routes to the right paths
