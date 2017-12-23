@@ -4,6 +4,7 @@ import (
 	"github.com/gorilla/mux"
 	"strings"
 	"testing"
+	"github.com/stretchr/testify/assert"
 )
 
 // tests if router is built correctly and routes to the right paths
@@ -22,11 +23,6 @@ func testRoute(t *testing.T, router *mux.Router, name, regex, methodName string)
 	pathRegex, _ := routeIndex.GetPathRegexp()
 	methods, _ := routeIndex.GetMethods()
 
-	if !strings.Contains(pathRegex, regex) {
-		t.Error("wrong route path regex")
-	}
-
-	if methods[0] != methodName {
-		t.Error("wrong route METHOD")
-	}
+	assert.True(t, strings.Contains(pathRegex, regex))
+	assert.Equal(t, methods[0], methodName)
 }

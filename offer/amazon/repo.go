@@ -1,22 +1,13 @@
 package amazon
 
 import (
-	"crypto/hmac"
-	"crypto/sha256"
-	"encoding/base64"
-	"encoding/json"
-	"fmt"
 	"github.com/guilhebl/go-offer/common/config"
 	"github.com/guilhebl/go-offer/common/model"
 	"github.com/guilhebl/go-offer/offer/monitor"
-	"github.com/guilhebl/go-strutil"
 	"github.com/guilhebl/go-worker-pool"
 	"log"
 	"math/rand"
-	"net/http"
-	"net/url"
 	"regexp"
-	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -68,7 +59,7 @@ func search(m map[string]string) *model.OfferList {
 	response, err := client.ItemSearch(query, timeout)
 
 	if err != nil {
-		log.Printf("error: %s", err.Error())
+		log.Printf("%s", err.Error())
 		return nil
 	}
 
@@ -78,7 +69,7 @@ func search(m map[string]string) *model.OfferList {
 // builds Offer list response mapping from vendor specific params
 func buildSearchResponse(r *ItemSearchResponse, page int) *model.OfferList {
 	items := r.Items
-	total := items.TotalResult
+	total := len(items.Items)
 	if total == 0 {
 		return nil
 	}
@@ -123,6 +114,7 @@ func buildOffer(item *Item, proxyRequired bool) *model.Offer {
 		0.0,
 		0,
 	)
+
 	return o
 }
 

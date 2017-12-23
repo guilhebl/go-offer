@@ -60,6 +60,7 @@ const (
 	BestBuyTrendingUrl = "https://api.bestbuy.com/beta/products/trendingViewed"
 	BestBuySearchUrl   = "https://api.bestbuy.com/v1/products"
 	EbaySearchUrl      = "http://svcs.ebay.com/services/search/FindingService/v1"
+	AmazonSearchUrl    = "https://webservices.amazon.com/onca/xml"
 )
 
 // returns the bytes of a corresponding mock API call for an external resource for the 'Trending' API CALL
@@ -71,6 +72,8 @@ func getJsonBytesTrendingMock(url string) []byte {
 		return readFile("offer/bestbuy/bestbuy_sample_trending_response.json")
 	case EbaySearchUrl:
 		return readFile("offer/ebay/ebay_sample_trending_response.json")
+	case AmazonSearchUrl:
+		return readFile("offer/amazon/amazon_sample_trending_response.xml")
 
 	default:
 		return nil
@@ -86,6 +89,8 @@ func getJsonBytesSearchMock(url string) []byte {
 		return readFile("offer/bestbuy/bestbuy_sample_search_response.json")
 	case EbaySearchUrl:
 		return readFile("offer/ebay/ebay_sample_search_response.json")
+	case AmazonSearchUrl:
+		return readFile("offer/amazon/amazon_sample_search_response.xml")
 
 	default:
 		return nil
@@ -114,6 +119,7 @@ func TestSearch(t *testing.T) {
 	registerMockResponder("GET", WalmartTrendingUrl, 200)
 	registerMockResponder("GET", BestBuyTrendingUrl, 200)
 	registerMockResponder("GET", EbaySearchUrl, 200)
+	registerMockResponder("GET", AmazonSearchUrl, 200)
 
 	// call our local server API
 	endpoint := "http://localhost:8080/"
@@ -123,6 +129,7 @@ func TestSearch(t *testing.T) {
 
 	// verify responses
 	body := response.Body.String()
+
 	assert.True(t, strings.HasPrefix(body, `{"list":[{"`))
 
 	walmartSnippet := `{"id":"348726849","upc":"816586026705","name":"Best Choice Products 6' Exercise Tri-Fold Gym Mat For Gymnastics, Aerobics, Yoga, Martial Arts - Pink","partyName":"walmart.com"`
@@ -131,13 +138,17 @@ func TestSearch(t *testing.T) {
 	bestBuySnippet := `{"id":"5714687","upc":"","name":"Alienware - Aurora R6 Desktop - Intel Core i7 - 16GB Memory - NVIDIA GeForce GTX 1070 - 256GB Solid State Drive + 1TB Hard Drive - Silver","partyName":"bestbuy.com"`
 	assert.True(t, strings.Contains(body, bestBuySnippet))
 
-	ebaySnippet := `,{"id":"262954865748","upc":"","name":"The Elder Scrolls V: Skyrim - Greatest Hits PS3 [Brand New]","partyName":"ebay.com"`
+	ebaySnippet := `{"id":"282629961650","upc":"","name":"Reverb Cross Men s Running Shoes","partyName":"ebay.com"`
 	assert.True(t, strings.Contains(body, ebaySnippet))
+
+	amazonSnippet := `{"id":"B0743W4Y75","upc":"701649356113","name":"Bluetooth Smart Watch with Camera, Aosmart B23 Smart Watch for Android Smartphones (White)","partyName":"amazon.com"`
+	assert.True(t, strings.Contains(body, amazonSnippet))
 
 	// get the amount of calls for the registered responders
 	assertCallsMade(t, "GET", WalmartTrendingUrl, 1)
 	assertCallsMade(t, "GET", BestBuyTrendingUrl, 1)
 	assertCallsMade(t, "GET", EbaySearchUrl, 1)
+	assertCallsMade(t, "GET", AmazonSearchUrl, 1)
 }
 
 func assertCallsMade(t *testing.T, httpMethod, url string, expected int) {

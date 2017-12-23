@@ -146,7 +146,6 @@ func (client Client) ProcessRequest(request *Request, timeout time.Duration) ([]
 		log.Fatal("Do: ", err)
 		return nil, errors.New(fmt.Sprintf("error on request: %s - error: %s", requestURL, err.Error()))
 	}
-
 	contents, err = ioutil.ReadAll(httpResponse.Body)
 	httpResponse.Body.Close()
 
@@ -233,12 +232,13 @@ func (client Client) ItemSearch(query ItemSearchQuery, timeout time.Duration) (*
 	}
 
 	var response ItemSearchResponse
-	xml.Unmarshal(xmlData, &response)
+	if err = xml.Unmarshal(xmlData, &response); err != nil {
+		return nil, err
+	}
 
 	if response.Items.Request.IsValid != true {
 		return &response, errors.New("error: request is invalid")
 	}
-
 	return &response, nil
 }
 

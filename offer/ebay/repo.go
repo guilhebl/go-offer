@@ -64,6 +64,7 @@ func search(m map[string]string) *model.OfferList {
 	q.Add("outputSelector", "PictureURLLarge") // add large picture to standard result
 	q.Add("paginationInput.pageNumber", p[model.Page])
 	q.Add("paginationInput.entriesPerPage", pageSize)
+	q.Add(model.Keywords, p[model.Keywords])
 
 	req.URL.RawQuery = q.Encode()
 	url = fmt.Sprintf(req.URL.String())
@@ -110,7 +111,16 @@ func getGlobalId(country string) string {
 
 // builds Offer list response mapping from vendor specific params
 func buildSearchResponse(r *SearchResponse) *model.OfferList {
+	if len(r.FindItemsByKeywordsResponse) == 0 {
+		return nil
+	}
+
 	head := r.FindItemsByKeywordsResponse[0]
+
+	if len(head.PaginationOutput) == 0 {
+		fmt.Printf("%v = ", r)
+		return nil
+	}
 	pg := head.PaginationOutput[0]
 
 	page, err := strconv.Atoi(pg.PageNumber[0])

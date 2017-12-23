@@ -1,11 +1,16 @@
 # GO-OFFER
 
-Go Offer is an open source project that aims to make trading better!
+Go Offer is an open source project that aims to bring together several world-wide marketplaces and provide best offers and results in a single consolidated platform.
 It's goal is to unify diverse market sources in order to connect people directly with products and services that they need through a global marketplace platform.
 Connecting users to local and international marketplaces and enabling the consumer to receive informative insights of a product or service in a transparent manner.
 Find out about prices, availability, features, reviews and more searching in one place and receiving the best results from multiple sources.
 Join the project and help make the world a better palce for trade.
 
+***
+##### Current beta: [Search Prod](https://searchprod.com)
+***
+[Frontend Javascript/Angular](https://github.com/guilhebl/offer-web)
+[Scala backend version](https://github.com/guilhebl/offer-backend)
 
 ## Getting started
 
