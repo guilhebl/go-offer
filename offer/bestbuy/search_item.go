@@ -3,7 +3,7 @@ package bestbuy
 type SearchItem struct {
 	ProductId             int            `json:"productId"`
 	Upc                   string         `json:"upc", omitempty`
-	Sku                   string         `json:"sku", omitempty`
+	Sku                   int64          `json:"sku", omitempty`
 	Name                  string         `json:"name"`
 	SalePrice             float32        `json:"salePrice"`
 	ReleaseDate           string         `json:"releaseDate", omitempty`

@@ -1,6 +1,10 @@
 package model
 
 const (
+	// Run modes
+	Prod = "prod"
+	Test = "test"
+
 	// Country Constants
 	Country      = "country"
 	UnitedStates = "usa"
@@ -27,4 +31,7 @@ const (
 	Model        = "model"
 	Brand        = "brand"
 	Publisher    = "publisher"
+	Trending     = "trending"
+	Search       = "search"
+	Detail       = "detail"
 )

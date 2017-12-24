@@ -10,33 +10,54 @@ import (
 	"sync"
 )
 
-var instance *props.Properties
+// Singleton which reads from configuration files for global app config params
+type Configuration struct {
+	Props *props.Properties
+}
+
+var instance *Configuration
 var once sync.Once
 
-func GetInstance() *props.Properties {
+func BuildInstance(mode string) *Configuration {
 	once.Do(func() {
-		instance = newProperties()
+		instance = newConfiguration(mode)
 	})
 	return instance
 }
 
-func newProperties() *props.Properties {
-	log.Printf("%s", "Init Config")
+func GetInstance() *Configuration {
+	return instance
+}
 
-	propsFile, err := props.ReadPropertiesFile("common/config/app-config.properties")
+func newConfiguration(mode string) *Configuration {
+	log.Printf("Init Config: %s", mode)
+
+	var p props.Properties
+	var err error
+
+	if mode == model.Prod {
+		p, err = props.ReadPropertiesFile("common/config/app-config.properties")
+	} else {
+		p, err = props.ReadPropertiesFile("common/config/test-app-config.properties")
+	}
+
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	return &propsFile
+	config := Configuration{
+		Props: &p,
+	}
+
+	return &config
 }
 
 func GetProperty(p string) string {
-	return GetInstance().GetProperty(p)
+	return GetInstance().Props.GetProperty(p)
 }
 
 func GetIntProperty(p string) int64 {
-	return GetInstance().GetIntProperty(p)
+	return GetInstance().Props.GetIntProperty(p)
 }
 
 func getHost() string {

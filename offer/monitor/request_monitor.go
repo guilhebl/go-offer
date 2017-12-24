@@ -11,8 +11,22 @@ import (
 // controlling volume of calls being made to the external marketplace environment, making sure number
 // of calls per second are within the limits and boundaries of each provider API.
 type RequestMonitor struct {
-	lastCalls     map[string]int64
+	lastCalls     sync.Map
 	waitIntervals map[string]int64
+}
+
+// checks if this api is available after waiting a certain "treshold" this avoids flooding this external resource with
+// calls, certain external APIs have quotas as max X requests per second.
+func (r *RequestMonitor) isServiceAvailable(name string, timestamp int64) bool {
+	s := GetInstance()
+	lastCall, ok := instance.lastCalls.Load(name)
+
+	if ok && timestamp-lastCall.(int64) >= s.waitIntervals[name] {
+		instance.lastCalls.Store(name, timestamp)
+		return true
+	}
+
+	return false
 }
 
 var instance *RequestMonitor
@@ -26,13 +40,6 @@ func GetInstance() *RequestMonitor {
 		amazonWaitInterval := config.GetIntProperty("amazonRequestWaitIntervalMilis")
 		bestBuyWaitInterval := config.GetIntProperty("bestbuyRequestWaitIntervalMilis")
 
-		lc := map[string]int64{
-			model.Walmart: 0,
-			model.Ebay:    0,
-			model.Amazon:  0,
-			model.BestBuy: 0,
-		}
-
 		wi := map[string]int64{
 			model.Walmart: walmartWaitInterval,
 			model.Ebay:    eBayWaitInterval,
@@ -40,24 +47,22 @@ func GetInstance() *RequestMonitor {
 			model.BestBuy: bestBuyWaitInterval,
 		}
 
-		instance = &RequestMonitor{lc, wi}
+		instance = &RequestMonitor{sync.Map{}, wi}
+
+		// store initial last calls timestamps
+		instance.lastCalls.Store(model.Walmart, int64(0))
+		instance.lastCalls.Store(model.Ebay, int64(0))
+		instance.lastCalls.Store(model.Amazon, int64(0))
+		instance.lastCalls.Store(model.BestBuy, int64(0))
 	})
 	return instance
 }
 
 // Checks if waitIntervalMilis has passed since last Call.
 // Difference in miliseconds (1*1000) = 1 second
-//
 func IsServiceAvailable(name string) bool {
 	now := timeMillis()
-	s := GetInstance()
-
-	if now-s.lastCalls[name] >= s.waitIntervals[name] {
-		s.lastCalls[name] = now
-		return true
-	}
-
-	return false
+	return instance.isServiceAvailable(name, now)
 }
 
 // gets time in millis

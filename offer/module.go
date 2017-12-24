@@ -2,6 +2,7 @@ package offer
 
 import (
 	"github.com/gorilla/mux"
+	"github.com/guilhebl/go-offer/common/config"
 	"github.com/guilhebl/go-worker-pool"
 	"log"
 	"runtime"
@@ -19,9 +20,9 @@ type Module struct {
 var instance *Module
 var once sync.Once
 
-func BuildInstance(router *mux.Router) *Module {
+func BuildInstance(router *mux.Router, mode string) *Module {
 	once.Do(func() {
-		instance = newModule(router)
+		instance = newModule(router, mode)
 	})
 	return instance
 }
@@ -30,12 +31,17 @@ func GetInstance() *Module {
 	return instance
 }
 
-func newModule(router *mux.Router) *Module {
-	log.Printf("New Module")
+// Builds a new module which is a container for the running app instance
+// router - the router configuration with URL routes and mapped action handlers
+// mode - test or production modes, which will make the app read from either test or prod config properties.
+func newModule(router *mux.Router, mode string) *Module {
+	log.Printf("New Module, mode: %s", mode)
+
+	// init config
+	config.BuildInstance(mode)
 
 	// fetch ENV var param ?
 	// maxWorker := os.Getenv("MAX_WORKERS")
-
 	numCPUs := runtime.NumCPU()
 	runtime.GOMAXPROCS(numCPUs + 1) // numCPUs hot threads + one for async tasks.
 	maxWorkers := numCPUs * 4

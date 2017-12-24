@@ -14,6 +14,8 @@ import (
 
 // Searches marketplace providers by keyword
 func SearchOffers(m map[string]string) *model.OfferList {
+	log.Printf("Search: %v", m)
+
 	country := m["country"]
 	if country == "" {
 		country = model.UnitedStates

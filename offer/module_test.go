@@ -1,6 +1,7 @@
 package offer
 
 import (
+	"github.com/guilhebl/go-offer/common/model"
 	"testing"
 )
 
@@ -8,7 +9,7 @@ import (
 func TestGetInstance(t *testing.T) {
 
 	router := NewRouter()
-	module := BuildInstance(router)
+	module := BuildInstance(router, model.Test)
 
 	if module == nil {
 		t.Error("Error while creating Module")
