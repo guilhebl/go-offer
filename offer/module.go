@@ -43,8 +43,7 @@ func newModule(router *mux.Router, mode string) *Module {
 	// fetch ENV var param ?
 	// maxWorker := os.Getenv("MAX_WORKERS")
 	numCPUs := runtime.NumCPU()
-	runtime.GOMAXPROCS(numCPUs + 1) // numCPUs hot threads + one for async tasks.
-	maxWorkers := numCPUs * 4
+	maxWorkers := numCPUs
 
 	jobQueue := make(chan job.Job)
 
