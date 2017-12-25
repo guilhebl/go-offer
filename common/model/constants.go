@@ -33,5 +33,4 @@ const (
 	Publisher    = "publisher"
 	Trending     = "trending"
 	Search       = "search"
-	Detail       = "detail"
 )

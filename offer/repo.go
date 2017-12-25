@@ -111,6 +111,7 @@ func GetOfferDetail(id, idType, source, country string) *model.OfferDetail {
 			if r.Error == nil {
 				// build detail item
 				d := r.Value.(*model.OfferDetail)
+
 				detItem := model.NewOfferDetailItem(
 					d.Offer.PartyName,
 					d.Offer.SemanticName,

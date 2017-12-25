@@ -1,0 +1,270 @@
+{
+  "from":1,
+  "to":1,
+  "currentPage":1,
+  "total":1,
+  "totalPages":1,
+  "queryTime":"0.008",
+  "totalTime":"0.021",
+  "partial":false,
+  "canonicalUrl":"/v1/products(upc=\"849803052423\")?LID=12345678&format=json&apiKey=12345678",
+  "products":[
+    {
+      "sku":5529006,
+      "score":null,
+      "productId":5529006,
+      "name":"Funko - Elder Scrolls V: Skyrim Dovahkiin Pop! Vinyl Figure",
+      "source":"bestbuy",
+      "type":"HardGood",
+      "startDate":"2016-08-12",
+      "new":false,
+      "active":true,
+      "lowPriceGuarantee":true,
+      "activeUpdateDate":"2017-03-11T19:32:36",
+      "regularPrice":9.99,
+      "salePrice":9.99,
+      "clearance":false,
+      "onSale":false,
+      "planPrice":null,
+      "priceWithPlan":[
+
+      ],
+      "contracts":[
+
+      ],
+      "priceRestriction":null,
+      "priceUpdateDate":"2017-06-29T00:01:44",
+      "digital":false,
+      "preowned":false,
+      "carriers":[
+
+      ],
+      "planFeatures":[
+
+      ],
+      "devices":[
+
+      ],
+      "carrierPlans":[
+
+      ],
+      "technologyCode":null,
+      "carrierModelNumber":null,
+      "earlyTerminationFees":[
+
+      ],
+      "monthlyRecurringCharge":"",
+      "monthlyRecurringChargeGrandTotal":"",
+      "activationCharge":"",
+      "minutePrice":"",
+      "planCategory":null,
+      "planType":null,
+      "familyIndividualCode":null,
+      "validFrom":null,
+      "validUntil":null,
+      "carrierPlan":null,
+      "outletCenter":null,
+      "secondaryMarket":null,
+      "frequentlyPurchasedWith":[
+
+      ],
+      "accessories":[
+
+      ],
+      "relatedProducts":[
+
+      ],
+      "techSupportPlans":[
+
+      ],
+      "crossSell":[
+
+      ],
+      "salesRankShortTerm":15203,
+      "salesRankMediumTerm":13334,
+      "salesRankLongTerm":14247,
+      "bestSellingRank":14210,
+      "url":"https://api.bestbuy.com/click/-/5529006/pdp",
+      "spin360Url":null,
+      "mobileUrl":"https://api.bestbuy.com/click/-/5529006/pdp",
+      "affiliateUrl":"https://api.bestbuy.com/click/-/5529006/pdp?ref=39&loc=01",
+      "addToCartUrl":"https://api.bestbuy.com/click/-/5529006/cart",
+      "affiliateAddToCartUrl":"https://api.bestbuy.com/click/-/5529006/cart?ref=39&loc=01",
+      "linkShareAffiliateUrl":"https://api.bestbuy.com/click/-/5529006/pdp?LID=12345678&u1=",
+      "linkShareAffiliateAddToCartUrl":"https://api.bestbuy.com/click/-/5529006/cart?LID=12345678&u1=",
+      "upc":"849803052423",
+      "productTemplate":"Action_Figures",
+      "categoryPath":[
+        {
+          "id":"cat00000",
+          "name":"Best Buy"
+        },
+        {
+          "id":"pcmcat252700050006",
+          "name":"Drones, Toys & Collectibles"
+        },
+        {
+          "id":"pcmcat748302046148",
+          "name":"Licensed Collectibles"
+        },
+        {
+          "id":"pcmcat748302046227",
+          "name":"Video Game Collectibles"
+        }
+      ],
+      "alternateCategories":[
+        {
+          "id":"pcmcat1489520673443",
+          "name":"All Licensed Collectibles"
+        },
+        {
+          "id":"pcmcat748302046769",
+          "name":"Funko Collectibles"
+        },
+        {
+          "id":"pcmcat748302046776",
+          "name":"Skyrim Collectibles"
+        }
+      ],
+      "lists":[
+
+      ],
+      "customerReviewCount":28,
+      "customerReviewAverage":4.80,
+      "customerTopRated":true,
+      "format":null,
+      "freeShipping":false,
+      "freeShippingEligible":true,
+      "inStoreAvailability":true,
+      "inStoreAvailabilityText":"Store Pickup:",
+      "inStoreAvailabilityUpdateDate":"2017-03-11T19:32:36",
+      "itemUpdateDate":"2017-10-15T08:09:16",
+      "onlineAvailability":true,
+      "onlineAvailabilityText":"Shipping: Ships in 1 business day.",
+      "onlineAvailabilityUpdateDate":"2017-10-13T16:15:49",
+      "releaseDate":"2016-10-23",
+      "shippingCost":5.49,
+      "shipping":[
+        {
+          "ground":5.49,
+          "secondDay":"",
+          "nextDay":"",
+          "vendorDelivery":""
+        }
+      ],
+      "shippingLevelsOfService":[
+        {
+          "serviceLevelId":2,
+          "serviceLevelName":"Standard",
+          "unitShippingPrice":5.49
+        },
+        {
+          "serviceLevelId":10,
+          "serviceLevelName":"Same Day",
+          "unitShippingPrice":5.99
+        }
+      ],
+      "specialOrder":false,
+      "shortDescription":"Skyrim Dovahkiin is a strong addition to any collection; vinyl material; age 17+",
+      "class":"VG COLLECTIBLES",
+      "classId":629,
+      "subclass":"VG COLLECTIBLES",
+      "subclassId":2020,
+      "department":"INTERACTIVE SOFTWARE",
+      "departmentId":9,
+      "protectionPlanTerm":"POP",
+      "protectionPlanType":null,
+      "protectionPlanLowPrice":"",
+      "protectionPlanHighPrice":"",
+      "buybackPlans":[
+
+      ],
+      "protectionPlans":[
+
+      ],
+      "protectionPlanDetails":[
+
+      ],
+      "productFamilies":[
+
+      ],
+      "productVariations":[
+
+      ],
+      "aspectRatio":null,
+      "screenFormat":null,
+      "lengthInMinutes":null,
+      "mpaaRating":null,
+      "plot":null,
+      "studio":null,
+      "theatricalReleaseDate":null,
+      "description":null,
+      "manufacturer":"Funko",
+      "modelNumber":"5242",
+      "image":"https://img.bbystatic.com/BestBuy_US/images/products/5529/5529006_sa.jpg",
+      "largeFrontImage":"https://img.bbystatic.com/BestBuy_US/images/products/5529/5529006_sd.jpg",
+      "mediumImage":"https://img.bbystatic.com/BestBuy_US/images/products/5529/5529006fp.gif",
+      "thumbnailImage":"https://img.bbystatic.com/BestBuy_US/images/products/5529/5529006_s.gif",
+      "largeImage":"https://img.bbystatic.com/BestBuy_US/images/products/5529/5529006_sb.jpg",
+      "alternateViewsImage":null,
+      "angleImage":null,
+      "backViewImage":null,
+      "energyGuideImage":null,
+      "leftViewImage":null,
+      "accessoriesImage":null,
+      "remoteControlImage":null,
+      "rightViewImage":null,
+      "topViewImage":null,
+      "albumTitle":"Elder Scrolls V: Skyrim Dovahkiin Pop! Vinyl Figure",
+      "artistName":null,
+      "artistId":null,
+      "originalReleaseDate":null,
+      "parentalAdvisory":null,
+      "mediaCount":null,
+      "monoStereo":null,
+      "studioLive":null,
+      "condition":"New",
+      "inStorePickup":true,
+      "friendsAndFamilyPickup":true,
+      "homeDelivery":false,
+      "quantityLimit":3,
+      "fulfilledBy":"BestBuy.com",
+      "members":[
+
+      ],
+      "bundledIn":[
+
+      ],
+      "albumLabel":null,
+      "genre":null,
+      "color":"Multi",
+      "depth":null,
+      "dollarSavings":0.00,
+      "percentSavings":"0.0",
+      "tradeInValue":"",
+      "height":"3.75 inches",
+      "orderable":"Available",
+      "weight":null,
+      "shippingWeight":0.25,
+      "width":null,
+      "warrantyLabor":"Not Applicable",
+      "warrantyParts":"Not Applicable",
+      "softwareAge":null,
+      "softwareGrade":null,
+      "platform":null,
+      "numberOfPlayers":null,
+      "softwareNumberOfPlayers":null,
+      "esrbRating":null,
+      "longDescription":"Add this Pop! Skyrim: Dovahkiin figurine to your game-inspired collection. Couple the Dragonborn with the matching Alduin collectible (not included) to recreate battles on your desk, or stand this tiny warrior on his own to guard your stash of pens. This Pop! Skyrim: Dovahkiin figurine is made of vinyl and is easy to wipe clean.",
+      "includedItemList":[
+        {
+          "includedItem":"Elder Scrolls V: Skyrim Dovahkiin Pop! Vinyl Figure"
+        }
+      ],
+      "marketplace":false,
+      "listingId":null,
+      "sellerId":null,
+      "shippingRestrictions":null
+    }
+  ]
+}

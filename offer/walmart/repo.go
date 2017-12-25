@@ -314,7 +314,7 @@ func buildProductDetail(item *SearchItem) *model.OfferDetail {
 	)
 
 	attrs := make(map[string]string)
-	detItems := make([]model.OfferDetailItem, config.CountMarketplaceProviderListSize())
+	detItems := make([]model.OfferDetailItem, 0)
 
 	det := model.NewOfferDetail(
 		*o,

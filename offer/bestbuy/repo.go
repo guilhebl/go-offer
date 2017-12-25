@@ -305,6 +305,7 @@ func GetOfferDetail(id string, idType string, country string) *model.OfferDetail
 }
 
 func buildOffer(item *SearchItem, proxyRequired bool) model.Offer {
+
 	o := model.NewOffer(
 		strconv.Itoa(item.ProductId),
 		item.Upc,
@@ -331,7 +332,7 @@ func buildProductDetail(r *SearchResponse) *model.OfferDetail {
 	proxyRequired := config.IsProxyRequired(model.BestBuy)
 
 	o := buildOffer(&item, proxyRequired)
-	detItems := make([]model.OfferDetailItem, config.CountMarketplaceProviderListSize())
+	detItems := make([]model.OfferDetailItem, 0)
 	det := model.NewOfferDetail(
 		o,
 		"",

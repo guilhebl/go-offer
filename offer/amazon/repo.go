@@ -277,6 +277,6 @@ func buildProductDetailResponse(response *ItemLookupResponse) *model.OfferDetail
 	o := buildOffer(&item, config.IsProxyRequired(model.Amazon))
 	desc := item.ItemAttributes.Feature
 	attrs := buildAttributes(*item.ItemAttributes)
-	detItems := make([]model.OfferDetailItem, config.CountMarketplaceProviderListSize())
+	detItems := make([]model.OfferDetailItem, 0)
 	return model.NewOfferDetail(*o, desc, attrs, detItems)
 }

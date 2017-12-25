@@ -7,7 +7,7 @@ type SearchItem struct {
 	Name                  string         `json:"name"`
 	SalePrice             float32        `json:"salePrice"`
 	ReleaseDate           string         `json:"releaseDate", omitempty`
-	Url                   string         `json:"releaseDate", omitempty`
+	Url                   string         `json:"url", omitempty`
 	Image                 string         `json:"image", omitempty`
 	ThumbnailImage        string         `json:"thumbnailImage", omitempty`
 	Manufacturer          string         `json:"manufacturer", omitempty`
