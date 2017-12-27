@@ -24,7 +24,8 @@ in order to get started you must first create your own API keys at:
 
 - BestBuy API
 
-after creating your api keys set the values in "app-config.properties" file
+After creating your api keys set the values in "app-config.properties" file replacing proper entries that have the string "TEST123456789"
+with the appropriate key values created in previous step.
 
 
 ### building

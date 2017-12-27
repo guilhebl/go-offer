@@ -63,10 +63,10 @@ const (
 	WalmartTrendingUrl       = "http://api.walmartlabs.com/v1/trends"
 	WalmartSearchUrl         = "http://api.walmartlabs.com/v1/search"
 	WalmartGetDetailUrl      = "http://api.walmartlabs.com/v1/items/53966162"
-	WalmartGetDetailByUpcUrl = "http://api.walmartlabs.com/v1/items/53966162"
+	WalmartGetDetailByUpcUrl = "http://api.walmartlabs.com/v1/items"
 	BestBuyTrendingUrl       = "https://api.bestbuy.com/beta/products/trendingViewed"
 	BestBuySearchUrl         = "https://api.bestbuy.com/v1/products(search=skyrim)"
-	BestBuyGetDetailUrl      = "https://api.bestbuy.com/v1/products(id=065857174434)"
+	BestBuyGetDetailUrl      = "https://api.bestbuy.com/v1/products(productId=5529006)"
 	BestBuyGetDetailByUpcUrl = "https://api.bestbuy.com/v1/products(upc=065857174434)"
 	EbaySearchUrl            = "http://svcs.ebay.com/services/search/FindingService/v1"
 	EbayGetDetailUrl         = "http://svcs.ebay.com/services/search/FindingService/v1"
@@ -307,4 +307,122 @@ func TestGetDetailByIdWalmart(t *testing.T) {
 	assertCallsMade(t, http.MethodGet, BestBuyGetDetailByUpcUrl, 1)
 	assertCallsMade(t, http.MethodGet, EbayGetDetailUrl, 1)
 	assertCallsMade(t, http.MethodGet, AmazonGetDetailUrl, 1)
+}
+
+// Tests GetDetail By Id BestBuy
+func TestGetDetailByIdBestBuy(t *testing.T) {
+	// register mock for external API endpoints
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	// External Vendor Apis
+	registerMockResponderGetDetail(http.MethodGet, BestBuyGetDetailUrl, model.Id, 200)
+	registerMockResponderGetDetail(http.MethodGet, WalmartGetDetailByUpcUrl, model.Upc, 200)
+	registerMockResponderGetDetail(http.MethodGet, EbayGetDetailUrl, model.Upc, 200)
+	registerMockResponderGetDetail(http.MethodGet, AmazonGetDetailUrl, model.Upc, 200)
+
+	// call our local server API
+	endpoint := "http://localhost:8080/offers/5529006?idType=id&source=bestbuy.com"
+	req, _ := http.NewRequest(http.MethodGet, endpoint, nil)
+	response := executeRequest(req)
+	assert.Equal(t, 200, response.Code)
+
+	// verify responses
+	body := response.Body.String()
+
+	assert.True(t, strings.HasPrefix(body, `{"offer":{"id":"5529006","upc":"849803052423","name":"Funko - Elder Scrolls V`))
+
+	walmartSnippet := `{"partyName":"walmart.com","semanticName":"http://linksynergy.walmart.com/fs-bin/click?id=12345678`
+	assert.True(t, strings.Contains(body, walmartSnippet))
+
+	bestBuySnippet := `"partyName":"bestbuy.com","semanticName":"https://api.bestbuy.com/click`
+	assert.True(t, strings.Contains(body, bestBuySnippet))
+
+	ebaySnippet := `{"partyName":"ebay.com","semanticName":"http://www.ebay.com/itm`
+	assert.True(t, strings.Contains(body, ebaySnippet))
+
+	amazonSnippet := `{"partyName":"amazon.com","semanticName":"https://www.amazon.com/Elder-Scrolls-Skyrim-strategy-bundle-Playstation`
+	assert.True(t, strings.Contains(body, amazonSnippet))
+
+	// get the amount of calls for the registered responders
+	assertCallsMade(t, http.MethodGet, BestBuyGetDetailUrl, 1)
+	assertCallsMade(t, http.MethodGet, WalmartGetDetailByUpcUrl, 1)
+	assertCallsMade(t, http.MethodGet, EbayGetDetailUrl, 1)
+	assertCallsMade(t, http.MethodGet, AmazonGetDetailUrl, 1)
+}
+
+// Tests GetDetail By Id Ebay returns no UPC so product detail items is empty (not fetching others competitors prices)
+func TestGetDetailByIdEbay(t *testing.T) {
+	// register mock for external API endpoints
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	// External Vendor Apis
+	registerMockResponderGetDetail(http.MethodGet, EbayGetDetailUrl, model.Id, 200)
+
+	// call our local server API
+	endpoint := "http://localhost:8080/offers/62923188?idType=id&source=ebay.com"
+	req, _ := http.NewRequest(http.MethodGet, endpoint, nil)
+	response := executeRequest(req)
+	assert.Equal(t, 200, response.Code)
+
+	// verify responses
+	body := response.Body.String()
+
+	assert.True(t, strings.HasPrefix(body, `{"offer":{"id":"62923188","upc":"","name":"Harry Potter and the Order of the Phoenix-(DVD, Widescreen`))
+
+	ebaySnippet := `partyName":"ebay.com","semanticName":"http://www.ebay.com/itm/Harry-Potter-and-Order-Phoenix-DVD-Widescreen-Edition-BRAND-NEW`
+	assert.True(t, strings.Contains(body, ebaySnippet))
+
+	assert.True(t, strings.Contains(body, `"price":5.62,"rating":0,"numReviews":0},"description":"","attributes":[],"productDetailItems":[]}`))
+
+	// get the amount of calls for the registered responders
+	assertCallsMade(t, http.MethodGet, EbayGetDetailUrl, 1)
+}
+
+// Tests GetDetail By Id Amazon
+func TestGetDetailByIdAmazon(t *testing.T) {
+	// register mock for external API endpoints
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	// External Vendor Apis
+	registerMockResponderGetDetail(http.MethodGet, AmazonGetDetailUrl, model.Id, 200)
+	registerMockResponderGetDetail(http.MethodGet, BestBuyGetDetailByUpcUrl, model.Upc, 200)
+	registerMockResponderGetDetail(http.MethodGet, WalmartGetDetailByUpcUrl, model.Upc, 200)
+	registerMockResponderGetDetail(http.MethodGet, EbayGetDetailUrl, model.Upc, 200)
+
+	// call our local server API
+	endpoint := "http://localhost:8080/offers/5529006?idType=id&source=amazon.com"
+	req, _ := http.NewRequest(http.MethodGet, endpoint, nil)
+	response := executeRequest(req)
+	assert.Equal(t, 200, response.Code)
+
+	// verify responses
+	body := response.Body.String()
+
+	prefix := `{"offer":{"id":"B01GW8XJVU","upc":"065857174434","name":"The Elder Scrolls V: Skyrim - Special Edition - PlayStation 4"`
+	assert.True(t, strings.HasPrefix(body, prefix))
+
+	desc := `"description":"All-new features include remastered art and effects, volumetric god rays, dynamic depth of field, screen-space reflections, and more."`
+	assert.True(t, strings.Contains(body, desc))
+	assert.True(t, strings.Contains(body, `{"name":"manufacturer","value":"Bethesda"},{"name":"brand","value":"Bethesda"}`))
+
+	walmartSnippet := `{"partyName":"walmart.com","semanticName":"http://linksynergy.walmart.com/fs-bin/click?id=12345678`
+	assert.True(t, strings.Contains(body, walmartSnippet))
+
+	bestBuySnippet := `{"partyName":"bestbuy.com","semanticName":"https://api.bestbuy.com/click/-/5529006/pdp"`
+	assert.True(t, strings.Contains(body, bestBuySnippet))
+
+	ebaySnippet := `{"partyName":"ebay.com","semanticName":"http://www.ebay.com/itm`
+	assert.True(t, strings.Contains(body, ebaySnippet))
+
+	amazonSnippet := `"partyName":"amazon.com","semanticName":"https://www.amazon.com/Elder-Scrolls-Skyrim-Special-PlayStation-4`
+	assert.True(t, strings.Contains(body, amazonSnippet))
+
+	// get the amount of calls for the registered responders
+	assertCallsMade(t, http.MethodGet, AmazonGetDetailUrl, 1)
+	assertCallsMade(t, http.MethodGet, BestBuyGetDetailByUpcUrl, 1)
+	assertCallsMade(t, http.MethodGet, WalmartGetDetailByUpcUrl, 1)
+	assertCallsMade(t, http.MethodGet, EbayGetDetailUrl, 1)
 }
