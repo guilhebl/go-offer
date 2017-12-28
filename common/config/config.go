@@ -38,7 +38,7 @@ func newConfiguration(mode string) *Configuration {
 	if mode == model.Prod {
 		p, err = props.ReadPropertiesFile("common/config/app-config.properties")
 	} else {
-		p, err = props.ReadPropertiesFile("common/config/test-app-config.properties")
+		p, err = props.ReadPropertiesFile("common/config/testdata/test-app-config.properties")
 	}
 
 	if err != nil {

@@ -78,13 +78,13 @@ const (
 func getJsonBytesTrendingMock(url string) []byte {
 	switch url {
 	case WalmartTrendingUrl:
-		return readFile("offer/walmart/walmart_sample_trending_response.json")
+		return readFile("offer/walmart/testdata/walmart_sample_trending_response.json")
 	case BestBuyTrendingUrl:
-		return readFile("offer/bestbuy/bestbuy_sample_trending_response.json")
+		return readFile("offer/bestbuy/testdata/bestbuy_sample_trending_response.json")
 	case EbaySearchUrl:
-		return readFile("offer/ebay/ebay_sample_trending_response.json")
+		return readFile("offer/ebay/testdata/ebay_sample_trending_response.json")
 	case AmazonSearchUrl:
-		return readFile("offer/amazon/amazon_sample_trending_response.xml")
+		return readFile("offer/amazon/testdata/amazon_sample_trending_response.xml")
 
 	default:
 		return nil
@@ -95,13 +95,13 @@ func getJsonBytesTrendingMock(url string) []byte {
 func getJsonBytesSearchMock(url string) []byte {
 	switch url {
 	case WalmartSearchUrl:
-		return readFile("offer/walmart/walmart_sample_search_response.json")
+		return readFile("offer/walmart/testdata/walmart_sample_search_response.json")
 	case BestBuySearchUrl:
-		return readFile("offer/bestbuy/bestbuy_sample_search_response.json")
+		return readFile("offer/bestbuy/testdata/bestbuy_sample_search_response.json")
 	case EbaySearchUrl:
-		return readFile("offer/ebay/ebay_sample_search_response.json")
+		return readFile("offer/ebay/testdata/ebay_sample_search_response.json")
 	case AmazonSearchUrl:
-		return readFile("offer/amazon/amazon_sample_search_response.xml")
+		return readFile("offer/amazon/testdata/amazon_sample_search_response.xml")
 
 	default:
 		return nil
@@ -112,13 +112,13 @@ func getJsonBytesSearchMock(url string) []byte {
 func getJsonBytesGetDetailByIdMock(url string) []byte {
 	switch url {
 	case WalmartGetDetailUrl:
-		return readFile("offer/walmart/walmart_sample_get_detail_by_id_response.json")
+		return readFile("offer/walmart/testdata/walmart_sample_get_detail_by_id_response.json")
 	case BestBuyGetDetailUrl:
-		return readFile("offer/bestbuy/bestbuy_sample_get_detail_by_id_response.json")
+		return readFile("offer/bestbuy/testdata/bestbuy_sample_get_detail_by_id_response.json")
 	case EbayGetDetailUrl:
-		return readFile("offer/ebay/ebay_sample_get_detail_by_id_response.json")
+		return readFile("offer/ebay/testdata/ebay_sample_get_detail_by_id_response.json")
 	case AmazonGetDetailUrl:
-		return readFile("offer/amazon/amazon_sample_get_detail_by_id_response.xml")
+		return readFile("offer/amazon/testdata/amazon_sample_get_detail_by_id_response.xml")
 
 	default:
 		return nil
@@ -129,13 +129,13 @@ func getJsonBytesGetDetailByIdMock(url string) []byte {
 func getJsonBytesGetDetailByUpcMock(url string) []byte {
 	switch url {
 	case WalmartGetDetailByUpcUrl:
-		return readFile("offer/walmart/walmart_sample_get_detail_by_upc_response.json")
+		return readFile("offer/walmart/testdata/walmart_sample_get_detail_by_upc_response.json")
 	case BestBuyGetDetailByUpcUrl:
-		return readFile("offer/bestbuy/bestbuy_sample_get_detail_by_upc_response.json")
+		return readFile("offer/bestbuy/testdata/bestbuy_sample_get_detail_by_upc_response.json")
 	case EbayGetDetailUrl:
-		return readFile("offer/ebay/ebay_sample_get_detail_by_id_response.json")
+		return readFile("offer/ebay/testdata/ebay_sample_get_detail_by_id_response.json")
 	case AmazonGetDetailUrl:
-		return readFile("offer/amazon/amazon_sample_get_detail_by_upc_response.xml")
+		return readFile("offer/amazon/testdata/amazon_sample_get_detail_by_upc_response.xml")
 
 	default:
 		return nil
