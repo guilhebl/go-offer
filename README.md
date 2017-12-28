@@ -6,11 +6,24 @@ Connecting users to local and international marketplaces and enabling the consum
 Find out about prices, availability, features, reviews and more searching in one place and receiving the best results from multiple sources.
 Join the project and help make the world a better palce for trade.
 
-***
-##### Current beta: [Search Prod](https://searchprod.com)
-***
-[Frontend Javascript/Angular](https://github.com/guilhebl/offer-web)
-[Scala backend version](https://github.com/guilhebl/offer-backend)
+
+##### Checkout [Current LIVE beta](https://searchprod.com)
+
+&nbsp;&nbsp;
+
+##### Current stack:
+
+. [Frontend Webapp](https://github.com/guilhebl/offer-web) -> Javascript: Angular4, Typescript, NgRx, Gulp
+
+. [Backend REST API Server](https://github.com/guilhebl/offer-backend) -> Scala Play
+
+. [Backend Test Server](https://github.com/guilhebl/offer-backend-nodejs) -> NodeJS Backend JSON API for Test Environment
+
+##### Future stack:
+
+. [Frontend Webapp](https://github.com/guilhebl/offer-web) -> Javascript: Angular5, Typescript, NgRx, Webpack
+
+. [Backend REST API Server](https://github.com/guilhebl/go-offer) -> Go
 
 ## Getting started
 
