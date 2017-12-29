@@ -1,0 +1,45 @@
+<ItemSearchResponse xmlns="http://webservices.amazon.com/AWSECommerceService/2011-08-01">
+<OperationRequest>
+<HTTPHeaders>
+<Header Name="UserAgent" Value="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.91 Safari/537.36"/>
+</HTTPHeaders>
+<RequestId>b27c886a-b291-4b36-95d0-049f99e28d19</RequestId>
+<Arguments>
+<Argument Name="AWSAccessKeyId" Value="test12345678"/>
+<Argument Name="AssociateTag" Value="test12345678"/>
+<Argument Name="ItemPage" Value="1"/>
+<Argument Name="Keywords" Value="xxccxcxcxsdsxcxdsd"/>
+<Argument Name="Operation" Value="ItemSearch"/>
+<Argument Name="ResponseGroup" Value="Images,ItemAttributes,Offers"/>
+<Argument Name="SearchIndex" Value="All"/>
+<Argument Name="Service" Value="AWSECommerceService"/>
+<Argument Name="Timestamp" Value="2017-10-19T05:32:05Z"/>
+<Argument Name="Signature" Value="6bzKmFU/u88PLxkTA+06MxhE8dgZCflKG3hRn7F1p8o="/>
+</Arguments>
+<RequestProcessingTime>0.0643377560000000</RequestProcessingTime>
+</OperationRequest>
+<Items>
+<Request>
+<IsValid>True</IsValid>
+<ItemSearchRequest>
+<ItemPage>1</ItemPage>
+<Keywords>xxccxcxcxsdsxcxdsd</Keywords>
+<ResponseGroup>Images</ResponseGroup>
+<ResponseGroup>ItemAttributes</ResponseGroup>
+<ResponseGroup>Offers</ResponseGroup>
+<SearchIndex>All</SearchIndex>
+</ItemSearchRequest>
+<Errors>
+<Error>
+<Code>AWS.ECommerceService.NoExactMatches</Code>
+<Message>We did not find any matches for your request.</Message>
+</Error>
+</Errors>
+</Request>
+<TotalResults>0</TotalResults>
+<TotalPages>0</TotalPages>
+<MoreSearchResultsUrl>
+https://www.amazon.com/gp/search?linkCode=xm2
+</MoreSearchResultsUrl>
+</Items>
+</ItemSearchResponse>

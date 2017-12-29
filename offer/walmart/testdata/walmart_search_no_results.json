@@ -1,0 +1,12 @@
+{
+  "query":"sk12321323",
+  "sort":"relevance",
+  "responseGroup":"base",
+  "totalResults":0,
+  "start":1,
+  "numItems":0,
+  "message":"Results not found!",
+  "facets":[
+
+  ]
+}

@@ -33,4 +33,5 @@ const (
 	Publisher    = "publisher"
 	Trending     = "trending"
 	Search       = "search"
+	NoResults = "noResults"
 )

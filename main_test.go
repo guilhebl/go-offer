@@ -108,6 +108,23 @@ func getJsonBytesSearchMock(url string) []byte {
 	}
 }
 
+// returns the bytes of a corresponding mock API call for an external resource for the 'Search No results' API CALL
+func getJsonBytesSearchNoResultsMock(url string) []byte {
+	switch url {
+	case WalmartSearchUrl:
+		return readFile("offer/walmart/testdata/walmart_search_no_results.json")
+	case BestBuySearchUrl:
+		return readFile("offer/bestbuy/testdata/bestbuy_search_no_results.json")
+	case EbaySearchUrl:
+		return readFile("offer/ebay/testdata/ebay_search_no_results.json")
+	case AmazonSearchUrl:
+		return readFile("offer/amazon/testdata/amazon_search_no_results.xml")
+
+	default:
+		return nil
+	}
+}
+
 // returns the bytes of a corresponding mock API call for an external resource for the 'GetDetail' API CALL
 func getJsonBytesGetDetailByIdMock(url string) []byte {
 	switch url {
@@ -164,6 +181,8 @@ func registerMockResponderSearch(httpMethod, apiUrl, apiType string, status int)
 		httpmock.RegisterResponder(httpMethod, apiUrl, httpmock.NewBytesResponder(status, getJsonBytesTrendingMock(apiUrl)))
 	case model.Search:
 		httpmock.RegisterResponder(httpMethod, apiUrl, httpmock.NewBytesResponder(status, getJsonBytesSearchMock(apiUrl)))
+	case model.NoResults:
+		httpmock.RegisterResponder(httpMethod, apiUrl, httpmock.NewBytesResponder(status, getJsonBytesSearchNoResultsMock(apiUrl)))
 	}
 }
 
@@ -259,6 +278,38 @@ func TestSearchWithKeywords(t *testing.T) {
 
 	amazonSnippet := `{"id":"B01GW8XJVU","upc":"093155171251","name":"The Elder Scrolls V: Skyrim - Special Edition - PlayStation 4","partyName":"amazon.com"`
 	assert.True(t, strings.Contains(body, amazonSnippet))
+
+	// get the amount of calls for the registered responders
+	assertCallsMade(t, http.MethodGet, WalmartSearchUrl, 1)
+	assertCallsMade(t, http.MethodGet, BestBuySearchUrl, 1)
+	assertCallsMade(t, http.MethodGet, EbaySearchUrl, 1)
+	assertCallsMade(t, http.MethodGet, AmazonSearchUrl, 1)
+}
+
+// Tests Search No results
+func TestSearchNoResults(t *testing.T) {
+	// register mock for external API endpoints
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	// External Vendor Apis
+	registerMockResponderSearch(http.MethodGet, WalmartSearchUrl, model.NoResults, 200)
+	registerMockResponderSearch(http.MethodGet, BestBuySearchUrl, model.NoResults, 200)
+	registerMockResponderSearch(http.MethodGet, EbaySearchUrl, model.NoResults, 200)
+	registerMockResponderSearch(http.MethodGet, AmazonSearchUrl, model.NoResults, 200)
+
+	// call our local server API
+	endpoint := "http://localhost:8080/offers"
+	var jsonRequest = []byte(`{"searchColumns":[{"name":"name","value":"skyrim"}],"sortOrder":"asc","page":1,"rowsPerPage":10}`)
+
+	req, _ := http.NewRequest(http.MethodPost, endpoint, bytes.NewBuffer(jsonRequest))
+	req.Header.Set("Content-Type", "application/json")
+	response := executeRequest(req)
+	assert.Equal(t, 200, response.Code)
+
+	// verify responses
+	body := response.Body.String()
+	assert.True(t, strings.HasPrefix(body, `{"list":[],"summary":{"page":1,"pageCount":1,"totalCount":0}`))
 
 	// get the amount of calls for the registered responders
 	assertCallsMade(t, http.MethodGet, WalmartSearchUrl, 1)
