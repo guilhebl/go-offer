@@ -1,0 +1,14 @@
+{
+  "from":1,
+  "to":0,
+  "currentPage":1,
+  "total":0,
+  "totalPages":0,
+  "queryTime":"0.017",
+  "totalTime":"0.018",
+  "partial":false,
+  "canonicalUrl":"/v1/products(upc=\"123456\")?LID=123456&format=json&apiKey=123456",
+  "products":[
+
+  ]
+}

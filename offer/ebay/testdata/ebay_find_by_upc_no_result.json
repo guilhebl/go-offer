@@ -1,0 +1,44 @@
+{
+  "findItemsByProductResponse":[
+    {
+      "ack":[
+        "Failure"
+      ],
+      "errorMessage":[
+        {
+          "error":[
+            {
+              "errorId":[
+                "41"
+              ],
+              "domain":[
+                "Marketplace"
+              ],
+              "severity":[
+                "Error"
+              ],
+              "category":[
+                "Request"
+              ],
+              "message":[
+                "Invalid product ID value."
+              ],
+              "subdomain":[
+                "Search"
+              ],
+              "parameter":[
+                "088374187416"
+              ]
+            }
+          ]
+        }
+      ],
+      "version":[
+        "1.13.0"
+      ],
+      "timestamp":[
+        "2017-10-10T05:17:12.812Z"
+      ]
+    }
+  ]
+}

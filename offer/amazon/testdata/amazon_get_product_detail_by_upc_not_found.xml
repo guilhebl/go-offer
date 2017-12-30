@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ItemLookupResponse xmlns="http://webservices.amazon.com/AWSECommerceService/2011-08-01">
+    <OperationRequest>
+        <HTTPHeaders>
+            <Header Name="UserAgent" Value="Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:56.0) Gecko/20100101 Firefox/56.0" />
+        </HTTPHeaders>
+        <RequestId>c634fb16-ba5a-42b4-a929-d9f1ce05214b</RequestId>
+        <Arguments>
+            <Argument Name="AWSAccessKeyId" Value="test123456" />
+            <Argument Name="AssociateTag" Value="test123456" />
+            <Argument Name="IdType" Value="UPC" />
+            <Argument Name="ItemId" Value="23456789251" />
+            <Argument Name="Operation" Value="ItemLookup" />
+            <Argument Name="ResponseGroup" Value="Images,ItemAttributes,Offers" />
+            <Argument Name="SearchIndex" Value="All" />
+            <Argument Name="Service" Value="AWSECommerceService" />
+            <Argument Name="Timestamp" Value="2017-10-19T07:17:22Z" />
+            <Argument Name="Signature" Value="CFGH7EF3pFatpLP0lWE6yGnYS14FURzYpH9E/ETpIXk=" />
+        </Arguments>
+        <RequestProcessingTime>0.0245764850000000</RequestProcessingTime>
+    </OperationRequest>
+    <Items>
+        <Request>
+            <IsValid>True</IsValid>
+            <ItemLookupRequest>
+                <IdType>UPC</IdType>
+                <ItemId>23456789251</ItemId>
+                <ResponseGroup>Images</ResponseGroup>
+                <ResponseGroup>ItemAttributes</ResponseGroup>
+                <ResponseGroup>Offers</ResponseGroup>
+                <SearchIndex>All</SearchIndex>
+                <VariationPage>All</VariationPage>
+            </ItemLookupRequest>
+            <Errors>
+                <Error>
+                    <Code>AWS.InvalidParameterValue</Code>
+                    <Message>23456789251 is not a valid value for ItemId. Please change this value and retry your request.</Message>
+                </Error>
+            </Errors>
+        </Request>
+    </Items>
+</ItemLookupResponse>

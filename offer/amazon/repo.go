@@ -101,15 +101,30 @@ func buildOffer(item *Item, proxyRequired bool) *model.Offer {
 		imgUrl = item.LargeImage.URL
 	}
 
+	upc := ""
+	if itemAttrs != nil && itemAttrs.UPC != "" {
+		upc = itemAttrs.UPC
+	}
+
+	title := ""
+	if itemAttrs != nil && itemAttrs.Title != "" {
+		title = itemAttrs.Title
+	}
+
+	productGroup := ""
+	if itemAttrs != nil && itemAttrs.ProductGroup != "" {
+		productGroup = itemAttrs.ProductGroup
+	}
+
 	o := model.NewOffer(
 		item.ASIN,
-		itemAttrs.UPC,
-		itemAttrs.Title,
+		upc,
+		title,
 		model.Amazon,
 		item.DetailPageURL,
 		config.BuildImgUrlExternal(imgUrl, proxyRequired),
 		config.BuildImgUrl("amazon-logo.png"),
-		itemAttrs.ProductGroup,
+		productGroup,
 		buildPrice(summary.LowestNewPrice, summary.LowerUsedPrice),
 		0.0,
 		0,
@@ -233,10 +248,10 @@ func GetOfferDetail(id string, idType string, country string) *model.OfferDetail
 			ItemIDs:        []string{id},
 			ResponseGroups: []string{"Images", "ItemAttributes", "Offers"},
 		}
-		response, err := client.ItemLookup(query, timeout)
 
+		response, err := client.ItemLookup(query, timeout)
 		if err != nil {
-			log.Printf("error: %s", err.Error())
+			log.Printf("error: %s", err)
 			return nil
 		}
 		return buildProductDetailResponse(response)
@@ -245,8 +260,12 @@ func GetOfferDetail(id string, idType string, country string) *model.OfferDetail
 	return nil
 }
 
-func buildAttributes(a ItemAttributes) map[string]string {
+func buildAttributes(a *ItemAttributes) map[string]string {
 	attrs := make(map[string]string)
+
+	if a == nil {
+		return attrs
+	}
 
 	m := a.Model
 	if m != "" {
@@ -274,9 +293,18 @@ func buildAttributes(a ItemAttributes) map[string]string {
 func buildProductDetailResponse(response *ItemLookupResponse) *model.OfferDetail {
 	items := response.Items
 	item := items.Item
+	if item.ASIN == "" {
+		return nil
+	}
+
 	o := buildOffer(&item, config.IsProxyRequired(model.Amazon))
-	desc := item.ItemAttributes.Feature
-	attrs := buildAttributes(*item.ItemAttributes)
+
+	desc := ""
+	if item.ItemAttributes != nil {
+		desc = item.ItemAttributes.Feature
+	}
+
+	attrs := buildAttributes(item.ItemAttributes)
 	detItems := make([]model.OfferDetailItem, 0)
 	return model.NewOfferDetail(*o, desc, attrs, detItems)
 }

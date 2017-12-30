@@ -85,16 +85,16 @@ func Show(w http.ResponseWriter, r *http.Request) {
 	}
 
 	result := GetOfferDetail(id, idType, source, country)
-	if result == nil {
-		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-		w.WriteHeader(http.StatusInternalServerError)
-		if err := json.NewEncoder(w).Encode("internal error"); err != nil {
-			panic(err)
-		}
-		return
-	}
+	//if result == nil {
+	//	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	//	w.WriteHeader(http.StatusInternalServerError)
+	//	if err := json.NewEncoder(w).Encode("internal error"); err != nil {
+	//		panic(err)
+	//	}
+	//	return
+	//}
 
-	if result.Offer.Id != "" {
+	if result != nil && result.Offer.Id != "" {
 		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 		w.WriteHeader(http.StatusOK)
 		if err := json.NewEncoder(w).Encode(*result); err != nil {

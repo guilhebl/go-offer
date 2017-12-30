@@ -182,7 +182,7 @@ func (client Client) ItemLookup(query ItemLookupQuery, timeout time.Duration) (*
 	var response ItemLookupResponse
 	xml.Unmarshal(xmlData, &response)
 
-	if response.Items.Request.IsValid != true {
+	if !response.Items.Request.IsValid {
 		return &response, errors.New("error: request is invalid")
 	}
 
@@ -236,7 +236,7 @@ func (client Client) ItemSearch(query ItemSearchQuery, timeout time.Duration) (*
 		return nil, err
 	}
 
-	if response.Items.Request.IsValid != true {
+	if !response.Items.Request.IsValid {
 		return &response, errors.New("error: request is invalid")
 	}
 	return &response, nil
@@ -259,7 +259,7 @@ func (client Client) BrowseNodeLookup(query BrowseNodeLookupQuery, timeout time.
 	var response BrowseNodeLookupResponse
 	xml.Unmarshal(xmlData, &response)
 
-	if response.BrowseNodes.Request.IsValid != true {
+	if !response.BrowseNodes.Request.IsValid {
 		return &response, errors.New("error: request is invalid")
 	}
 

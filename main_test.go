@@ -150,7 +150,7 @@ func getJsonBytesGetDetailByUpcMock(url string) []byte {
 	case BestBuyGetDetailByUpcUrl:
 		return readFile("offer/bestbuy/testdata/bestbuy_sample_get_detail_by_upc_response.json")
 	case EbayGetDetailUrl:
-		return readFile("offer/ebay/testdata/ebay_sample_get_detail_by_id_response.json")
+		return readFile("offer/ebay/testdata/ebay_find_by_upc.json")
 	case AmazonGetDetailUrl:
 		return readFile("offer/amazon/testdata/amazon_sample_get_detail_by_upc_response.xml")
 
@@ -159,6 +159,22 @@ func getJsonBytesGetDetailByUpcMock(url string) []byte {
 	}
 }
 
+// returns the bytes of a corresponding mock API call for an external resource for the 'GetDetail' API CALL By UPC With no Results
+func getJsonBytesGetDetailByUpcNoResultsMock(url string) []byte {
+	switch url {
+	case WalmartGetDetailByUpcUrl:
+		return readFile("offer/walmart/testdata/walmart_get_by_upc_not_found.json")
+	case BestBuyGetDetailByUpcUrl:
+		return readFile("offer/bestbuy/testdata/best_buy_get_by_upc_prod_detail_not_found.json")
+	case EbayGetDetailUrl:
+		return readFile("offer/ebay/testdata/ebay_find_by_upc_no_result.json")
+	case AmazonGetDetailUrl:
+		return readFile("offer/amazon/testdata/amazon_get_product_detail_by_upc_not_found.xml")
+
+	default:
+		return nil
+	}
+}
 func executeRequest(req *http.Request) *httptest.ResponseRecorder {
 	rr := httptest.NewRecorder()
 	offer.GetInstance().Router.ServeHTTP(rr, req)
@@ -179,10 +195,13 @@ func registerMockResponderSearch(httpMethod, apiUrl, apiType string, status int)
 	switch apiType {
 	case model.Trending:
 		httpmock.RegisterResponder(httpMethod, apiUrl, httpmock.NewBytesResponder(status, getJsonBytesTrendingMock(apiUrl)))
+		break
 	case model.Search:
 		httpmock.RegisterResponder(httpMethod, apiUrl, httpmock.NewBytesResponder(status, getJsonBytesSearchMock(apiUrl)))
+		break
 	case model.NoResults:
 		httpmock.RegisterResponder(httpMethod, apiUrl, httpmock.NewBytesResponder(status, getJsonBytesSearchNoResultsMock(apiUrl)))
+		break
 	}
 }
 
@@ -193,8 +212,13 @@ func registerMockResponderGetDetail(httpMethod, apiUrl, apiType string, status i
 	switch apiType {
 	case model.Id:
 		httpmock.RegisterResponder(httpMethod, apiUrl, httpmock.NewBytesResponder(status, getJsonBytesGetDetailByIdMock(apiUrl)))
+		break
 	case model.Upc:
 		httpmock.RegisterResponder(httpMethod, apiUrl, httpmock.NewBytesResponder(status, getJsonBytesGetDetailByUpcMock(apiUrl)))
+		break
+	case model.NoResults:
+		httpmock.RegisterResponder(httpMethod, apiUrl, httpmock.NewBytesResponder(status, getJsonBytesGetDetailByUpcNoResultsMock(apiUrl)))
+		break
 	}
 }
 
@@ -347,11 +371,61 @@ func TestGetDetailByIdWalmart(t *testing.T) {
 	bestBuySnippet := `{"partyName":"bestbuy.com","semanticName":"https://api.bestbuy.com/click/-/5529006/pdp"`
 	assert.True(t, strings.Contains(body, bestBuySnippet))
 
-	ebaySnippet := `{"partyName":"ebay.com","semanticName":"http://www.ebay.com/itm/Harry-Potter-and-Order-Phoenix-DVD-Widescreen-Edition`
+	ebaySnippet := `{"partyName":"ebay.com","semanticName":"http://www.ebay.com/itm/New-Laptop-Toshiba-Satellite-L355-S7907-17-Intel-Pentium-Dual-core-T3400-2-16Gh`
 	assert.True(t, strings.Contains(body, ebaySnippet))
 
 	amazonSnippet := `{"partyName":"amazon.com","semanticName":"https://www.amazon.com/Elder-Scrolls-Skyrim-strategy-bundle-Playstation`
 	assert.True(t, strings.Contains(body, amazonSnippet))
+
+	// get the amount of calls for the registered responders
+	assertCallsMade(t, http.MethodGet, WalmartGetDetailUrl, 1)
+	assertCallsMade(t, http.MethodGet, BestBuyGetDetailByUpcUrl, 1)
+	assertCallsMade(t, http.MethodGet, EbayGetDetailUrl, 1)
+	assertCallsMade(t, http.MethodGet, AmazonGetDetailUrl, 1)
+}
+
+// Tests GetDetail By Upc Not Found Walmart
+func TestGetDetailByUpcNotFoundWalmart(t *testing.T) {
+	// register mock for external API endpoints
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	// External Vendor Apis
+	registerMockResponderGetDetail(http.MethodGet, WalmartGetDetailByUpcUrl, model.NoResults, 200)
+
+	// call our local server API
+	endpoint := "http://localhost:8080/offers/12345678?idType=upc&source=walmart.com"
+	req, _ := http.NewRequest(http.MethodGet, endpoint, nil)
+	response := executeRequest(req)
+	assert.Equal(t, 404, response.Code)
+
+	// get the amount of calls for the registered responders
+	assertCallsMade(t, http.MethodGet, WalmartGetDetailByUpcUrl, 1)
+}
+
+// Tests GetDetail By Id - No Competitors search by UPC detail items found
+func TestGetDetailByIdWalmartNoDetailItems(t *testing.T) {
+	// register mock for external API endpoints
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	// External Vendor Apis
+	registerMockResponderGetDetail(http.MethodGet, WalmartGetDetailUrl, model.Id, 200)
+	registerMockResponderGetDetail(http.MethodGet, BestBuyGetDetailByUpcUrl, model.NoResults, 200)
+	registerMockResponderGetDetail(http.MethodGet, EbayGetDetailUrl, model.NoResults, 200)
+	registerMockResponderGetDetail(http.MethodGet, AmazonGetDetailUrl, model.NoResults, 200)
+
+	// call our local server API
+	endpoint := "http://localhost:8080/offers/53966162?idType=id&source=walmart.com"
+	req, _ := http.NewRequest(http.MethodGet, endpoint, nil)
+	response := executeRequest(req)
+	assert.Equal(t, 200, response.Code)
+
+	// verify responses
+	body := response.Body.String()
+
+	assert.True(t, strings.HasPrefix(body, `{"offer":{"id":"55760264","upc":"065857174434","name":"Better Homes`))
+	assert.True(t, strings.Contains(body, `"productDetailItems":[]`))
 
 	// get the amount of calls for the registered responders
 	assertCallsMade(t, http.MethodGet, WalmartGetDetailUrl, 1)
