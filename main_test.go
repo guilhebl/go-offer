@@ -342,7 +342,7 @@ func TestSearchNoResults(t *testing.T) {
 	assertCallsMade(t, http.MethodGet, AmazonSearchUrl, 1)
 }
 
-// Tests GetDetail By Id
+// Tests GetDetail By Id - walmart
 func TestGetDetailByIdWalmart(t *testing.T) {
 	// register mock for external API endpoints
 	httpmock.Activate()
@@ -403,7 +403,7 @@ func TestGetDetailByUpcNotFoundWalmart(t *testing.T) {
 	assertCallsMade(t, http.MethodGet, WalmartGetDetailByUpcUrl, 1)
 }
 
-// Tests GetDetail By Id - No Competitors search by UPC detail items found
+// Tests GetDetail By Id - No Competitors search by UPC detail items found - walmart
 func TestGetDetailByIdWalmartNoDetailItems(t *testing.T) {
 	// register mock for external API endpoints
 	httpmock.Activate()
@@ -468,6 +468,57 @@ func TestGetDetailByIdBestBuy(t *testing.T) {
 
 	amazonSnippet := `{"partyName":"amazon.com","semanticName":"https://www.amazon.com/Elder-Scrolls-Skyrim-strategy-bundle-Playstation`
 	assert.True(t, strings.Contains(body, amazonSnippet))
+
+	// get the amount of calls for the registered responders
+	assertCallsMade(t, http.MethodGet, BestBuyGetDetailUrl, 1)
+	assertCallsMade(t, http.MethodGet, WalmartGetDetailByUpcUrl, 1)
+	assertCallsMade(t, http.MethodGet, EbayGetDetailUrl, 1)
+	assertCallsMade(t, http.MethodGet, AmazonGetDetailUrl, 1)
+}
+
+
+// Tests GetDetail By Upc Not Found - Best Buy
+func TestGetDetailByUpcNotFoundBestBuy(t *testing.T) {
+	// register mock for external API endpoints
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	// External Vendor Apis
+	registerMockResponderGetDetail(http.MethodGet, BestBuyGetDetailByUpcUrl, model.NoResults, 200)
+
+	// call our local server API
+	endpoint := "http://localhost:8080/offers/065857174434?idType=upc&source=bestbuy.com"
+	req, _ := http.NewRequest(http.MethodGet, endpoint, nil)
+	response := executeRequest(req)
+	assert.Equal(t, 404, response.Code)
+
+	// get the amount of calls for the registered responders
+	assertCallsMade(t, http.MethodGet, BestBuyGetDetailByUpcUrl, 1)
+}
+
+// Tests GetDetail By Id - No Competitors search by UPC detail items found - BestBuy
+func TestGetDetailByIdBestBuyNoDetailItems(t *testing.T) {
+	// register mock for external API endpoints
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	// External Vendor Apis
+	registerMockResponderGetDetail(http.MethodGet, BestBuyGetDetailUrl, model.Id, 200)
+	registerMockResponderGetDetail(http.MethodGet, WalmartGetDetailByUpcUrl, model.NoResults, 200)
+	registerMockResponderGetDetail(http.MethodGet, EbayGetDetailUrl, model.NoResults, 200)
+	registerMockResponderGetDetail(http.MethodGet, AmazonGetDetailUrl, model.NoResults, 200)
+
+	// call our local server API
+	endpoint := "http://localhost:8080/offers/5529006?idType=id&source=bestbuy.com"
+	req, _ := http.NewRequest(http.MethodGet, endpoint, nil)
+	response := executeRequest(req)
+	assert.Equal(t, 200, response.Code)
+
+	// verify responses
+	body := response.Body.String()
+
+	assert.True(t, strings.HasPrefix(body, `{"offer":{"id":"5529006","upc":"849803052423","name":"Funko - Elder Scrolls V: Skyrim`))
+	assert.True(t, strings.Contains(body, `"productDetailItems":[]`))
 
 	// get the amount of calls for the registered responders
 	assertCallsMade(t, http.MethodGet, BestBuyGetDetailUrl, 1)
