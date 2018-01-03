@@ -600,7 +600,7 @@ func TestGetDetailByIdAmazon(t *testing.T) {
 
 	desc := `"description":"All-new features include remastered art and effects, volumetric god rays, dynamic depth of field, screen-space reflections, and more."`
 	assert.True(t, strings.Contains(body, desc))
-	assert.True(t, strings.Contains(body, `{"name":"manufacturer","value":"Bethesda"},{"name":"brand","value":"Bethesda"}`))
+	assert.True(t, strings.Contains(body, `"name":"manufacturer","value":"Bethesda"`))
 
 	walmartSnippet := `{"partyName":"walmart.com","semanticName":"http://linksynergy.walmart.com/fs-bin/click?id=12345678`
 	assert.True(t, strings.Contains(body, walmartSnippet))
@@ -613,6 +613,56 @@ func TestGetDetailByIdAmazon(t *testing.T) {
 
 	amazonSnippet := `"partyName":"amazon.com","semanticName":"https://www.amazon.com/Elder-Scrolls-Skyrim-Special-PlayStation-4`
 	assert.True(t, strings.Contains(body, amazonSnippet))
+
+	// get the amount of calls for the registered responders
+	assertCallsMade(t, http.MethodGet, AmazonGetDetailUrl, 1)
+	assertCallsMade(t, http.MethodGet, BestBuyGetDetailByUpcUrl, 1)
+	assertCallsMade(t, http.MethodGet, WalmartGetDetailByUpcUrl, 1)
+	assertCallsMade(t, http.MethodGet, EbayGetDetailUrl, 1)
+}
+
+// Tests GetDetail By Upc Not Found - Amazon
+func TestGetDetailByUpcNotFoundAmazon(t *testing.T) {
+	// register mock for external API endpoints
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	// External Vendor Apis
+	registerMockResponderGetDetail(http.MethodGet, AmazonGetDetailUrl, model.NoResults, 200)
+
+	// call our local server API
+	endpoint := "http://localhost:8080/offers/123456789?idType=upc&source=amazon.com"
+	req, _ := http.NewRequest(http.MethodGet, endpoint, nil)
+	response := executeRequest(req)
+	assert.Equal(t, 404, response.Code)
+
+	// get the amount of calls for the registered responders
+	assertCallsMade(t, http.MethodGet, AmazonGetDetailUrl, 1)
+}
+
+// Tests GetDetail By Id - No Competitors search by UPC detail items found - Amazon
+func TestGetDetailByIdAmazonNoDetailItems(t *testing.T) {
+	// register mock for external API endpoints
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	// External Vendor Apis
+	registerMockResponderGetDetail(http.MethodGet, AmazonGetDetailUrl, model.Id, 200)
+	registerMockResponderGetDetail(http.MethodGet, BestBuyGetDetailByUpcUrl, model.NoResults, 200)
+	registerMockResponderGetDetail(http.MethodGet, WalmartGetDetailByUpcUrl, model.NoResults, 200)
+	registerMockResponderGetDetail(http.MethodGet, EbayGetDetailUrl, model.NoResults, 200)
+
+	// call our local server API
+	endpoint := "http://localhost:8080/offers/123456789?idType=id&source=amazon.com"
+	req, _ := http.NewRequest(http.MethodGet, endpoint, nil)
+	response := executeRequest(req)
+	assert.Equal(t, 200, response.Code)
+
+	// verify responses
+	body := response.Body.String()
+
+	assert.True(t, strings.HasPrefix(body, `{"offer":{"id":"B01GW8XJVU","upc":"065857174434","name":"The Elder Scrolls V: Skyrim - Special Edition`))
+	assert.True(t, strings.Contains(body, `"productDetailItems":[]`))
 
 	// get the amount of calls for the registered responders
 	assertCallsMade(t, http.MethodGet, AmazonGetDetailUrl, 1)
