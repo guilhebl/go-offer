@@ -476,7 +476,6 @@ func TestGetDetailByIdBestBuy(t *testing.T) {
 	assertCallsMade(t, http.MethodGet, AmazonGetDetailUrl, 1)
 }
 
-
 // Tests GetDetail By Upc Not Found - Best Buy
 func TestGetDetailByUpcNotFoundBestBuy(t *testing.T) {
 	// register mock for external API endpoints
@@ -551,6 +550,25 @@ func TestGetDetailByIdEbay(t *testing.T) {
 	assert.True(t, strings.Contains(body, ebaySnippet))
 
 	assert.True(t, strings.Contains(body, `"price":5.62,"rating":0,"numReviews":0},"description":"","attributes":[],"productDetailItems":[]}`))
+
+	// get the amount of calls for the registered responders
+	assertCallsMade(t, http.MethodGet, EbayGetDetailUrl, 1)
+}
+
+// Tests GetDetail By Upc Not Found - Ebay
+func TestGetDetailByUpcNotFoundEbay(t *testing.T) {
+	// register mock for external API endpoints
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	// External Vendor Apis
+	registerMockResponderGetDetail(http.MethodGet, EbayGetDetailUrl, model.NoResults, 200)
+
+	// call our local server API
+	endpoint := "http://localhost:8080/offers/123456789?idType=upc&source=ebay.com"
+	req, _ := http.NewRequest(http.MethodGet, endpoint, nil)
+	response := executeRequest(req)
+	assert.Equal(t, 404, response.Code)
 
 	// get the amount of calls for the registered responders
 	assertCallsMade(t, http.MethodGet, EbayGetDetailUrl, 1)
