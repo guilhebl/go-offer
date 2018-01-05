@@ -6,7 +6,6 @@ import (
 	"github.com/guilhebl/go-offer/common/config"
 	"github.com/guilhebl/go-offer/common/model"
 	"github.com/guilhebl/go-offer/offer/monitor"
-	"github.com/guilhebl/go-strutil"
 	"github.com/guilhebl/go-worker-pool"
 	"log"
 	"math/rand"
@@ -173,20 +172,15 @@ func buildOffer(item *SearchItem, proxyRequired bool) *model.Offer {
 		imgUrl = item.PictureURLLarge[0]
 	}
 
-	prodCategory := ""
-	if len(item.PrimaryCategory) > 0 {
-		prodCategory = strutil.MakeString(item.PrimaryCategory[0].CategoryName)
-	}
-
 	o := model.NewOffer(
 		id,
 		"",
-		strutil.MakeString(item.Title),
+		strings.Join(item.Title, ""),
 		model.Ebay,
 		url,
 		config.BuildImgUrlExternal(imgUrl, proxyRequired),
 		config.BuildImgUrl("ebay-logo.png"),
-		prodCategory,
+		strings.Join(item.PrimaryCategory[0].CategoryName, ""),
 		float32(price),
 		0.0,
 		0,

@@ -41,7 +41,17 @@ func Search(w http.ResponseWriter, r *http.Request) {
 	}
 	defer r.Body.Close()
 
-	m := req.Map()
+	// validates and builds map from request
+	m, err := req.Map()
+	if err != nil {
+		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+		w.WriteHeader(http.StatusBadRequest)
+		if err := json.NewEncoder(w).Encode("invalid request"); err != nil {
+			panic(err)
+		}
+		return
+	}
+
 	result := SearchOffers(m)
 	if result == nil {
 		w.Header().Set("Content-Type", "application/json; charset=UTF-8")

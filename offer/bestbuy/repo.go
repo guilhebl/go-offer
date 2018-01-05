@@ -6,7 +6,6 @@ import (
 	"github.com/guilhebl/go-offer/common/config"
 	"github.com/guilhebl/go-offer/common/model"
 	"github.com/guilhebl/go-offer/offer/monitor"
-	"github.com/guilhebl/go-strutil"
 	"github.com/guilhebl/go-worker-pool"
 	"log"
 	"net/http"
@@ -210,7 +209,7 @@ func buildSearchPath(str string) string {
 		}
 	}
 	// remove last &
-	s = strutil.TrimSuffix(s, "&")
+	s = strings.TrimSuffix(s, "&")
 	s += ")"
 
 	return s

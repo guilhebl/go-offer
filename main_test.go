@@ -310,6 +310,100 @@ func TestSearchWithKeywords(t *testing.T) {
 	assertCallsMade(t, http.MethodGet, AmazonSearchUrl, 1)
 }
 
+// Tests Search with keywords that returns results from external APIs - SORT by name DESC
+func TestSearchWithKeywordsSortByNameDesc(t *testing.T) {
+	// register mock for external API endpoints
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	// External Vendor Apis
+	registerMockResponderSearch(http.MethodGet, WalmartSearchUrl, model.Search, 200)
+	registerMockResponderSearch(http.MethodGet, BestBuySearchUrl, model.Search, 200)
+	registerMockResponderSearch(http.MethodGet, EbaySearchUrl, model.Search, 200)
+	registerMockResponderSearch(http.MethodGet, AmazonSearchUrl, model.Search, 200)
+
+	// call our local server API
+	endpoint := "http://localhost:8080/offers"
+	var jsonRequest = []byte(`{"searchColumns":[{"name":"name","value":"skyrim"}],"sortOrder":"desc","page":1,"rowsPerPage":10}`)
+
+	req, _ := http.NewRequest(http.MethodPost, endpoint, bytes.NewBuffer(jsonRequest))
+	req.Header.Set("Content-Type", "application/json")
+	response := executeRequest(req)
+	assert.Equal(t, 200, response.Code)
+
+	// verify responses
+	body := response.Body.String()
+
+	assert.True(t, strings.HasPrefix(body, `{"list":[{"`))
+
+	walmartSnippet := `{"id":"53966162","upc":"093155171244","name":"Skyrim Special Edition (Xbox One)","partyName":"walmart.com",`
+	assert.True(t, strings.Contains(body, walmartSnippet))
+
+	bestBuySnippet := `{"id":"5626200","upc":"600603210488","name":"The Elder Scrolls V: Skyrim Special Edition Best Buy Exclusive Dragonborn Bundle - Xbox One","partyName":"bestbuy.com"`
+	assert.True(t, strings.Contains(body, bestBuySnippet))
+
+	ebaySnippet := `{"id":"223482818","upc":"","name":"Elder Scrolls V: Skyrim - Special Edition With Bonus Steelbook Case PS4 ","partyName":"ebay.com"`
+	assert.True(t, strings.Contains(body, ebaySnippet))
+
+	amazonSnippet := `{"id":"B01GW8XJVU","upc":"093155171251","name":"The Elder Scrolls V: Skyrim - Special Edition - PlayStation 4","partyName":"amazon.com"`
+	assert.True(t, strings.Contains(body, amazonSnippet))
+
+	// get the amount of calls for the registered responders
+	assertCallsMade(t, http.MethodGet, WalmartSearchUrl, 1)
+	assertCallsMade(t, http.MethodGet, BestBuySearchUrl, 1)
+	assertCallsMade(t, http.MethodGet, EbaySearchUrl, 1)
+	assertCallsMade(t, http.MethodGet, AmazonSearchUrl, 1)
+}
+
+// Tests Search with keywords invalid expects Bad Request 400
+func testSearchWithKeywordsInvalidRequest(t *testing.T, json []byte) {
+	// register mock for external API endpoints
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	// External Vendor Apis
+	registerMockResponderSearch(http.MethodGet, WalmartSearchUrl, model.Search, 200)
+	registerMockResponderSearch(http.MethodGet, BestBuySearchUrl, model.Search, 200)
+	registerMockResponderSearch(http.MethodGet, EbaySearchUrl, model.Search, 200)
+	registerMockResponderSearch(http.MethodGet, AmazonSearchUrl, model.Search, 200)
+
+	// call our local server API
+	endpoint := "http://localhost:8080/offers"
+
+	req, _ := http.NewRequest(http.MethodPost, endpoint, bytes.NewBuffer(json))
+	req.Header.Set("Content-Type", "application/json")
+	response := executeRequest(req)
+	assert.Equal(t, 400, response.Code)
+
+	// verify responses
+	body := response.Body.String()
+	assert.True(t, strings.Contains(body, "invalid request"))
+
+	// get the amount of calls for the registered responders
+	assertCallsMade(t, http.MethodGet, WalmartSearchUrl, 0)
+	assertCallsMade(t, http.MethodGet, BestBuySearchUrl, 0)
+	assertCallsMade(t, http.MethodGet, EbaySearchUrl, 0)
+	assertCallsMade(t, http.MethodGet, AmazonSearchUrl, 0)
+}
+
+// Tests Search with keywords invalid expects Bad Request 400 - sort order
+func TestSearchWithKeywordsInvalidSortOrder(t *testing.T) {
+	var jsonRequest = []byte(`{"searchColumns":[{"name":"name","value":"skyrim"}],"sortOrder":"abc","page":1,"rowsPerPage":10}`)
+	testSearchWithKeywordsInvalidRequest(t, jsonRequest)
+}
+
+// Tests Search with keywords invalid expects Bad Request 400 - page
+func TestSearchWithKeywordsInvalidPage(t *testing.T) {
+	var jsonRequest = []byte(`{"searchColumns":[{"name":"name","value":"skyrim"}],"sortOrder":"asc","page":-1,"rowsPerPage":10}`)
+	testSearchWithKeywordsInvalidRequest(t, jsonRequest)
+}
+
+// Tests Search with keywords invalid expects Bad Request 400 - rowsPerPage
+func TestSearchWithKeywordsInvalidRowsPerPage(t *testing.T) {
+	var jsonRequest = []byte(`{"searchColumns":[{"name":"name","value":"skyrim"}],"sortOrder":"asc","page":1,"rowsPerPage":-10}`)
+	testSearchWithKeywordsInvalidRequest(t, jsonRequest)
+}
+
 // Tests Search No results
 func TestSearchNoResults(t *testing.T) {
 	// register mock for external API endpoints
