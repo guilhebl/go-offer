@@ -9,7 +9,7 @@ import (
 func TestGetInstance(t *testing.T) {
 
 	router := NewRouter()
-	module := BuildInstance(router, model.Test)
+	module := BuildInstance(router, "test")
 
 	if module == nil {
 		t.Error("Error while creating Module")

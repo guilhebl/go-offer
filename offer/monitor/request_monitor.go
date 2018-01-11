@@ -12,7 +12,7 @@ import (
 // of calls per second are within the limits and boundaries of each provider API.
 type RequestMonitor struct {
 	lastCalls     sync.Map
-	waitIntervals map[string]int64
+	waitIntervals map[string]int
 }
 
 // checks if this api is available after waiting a certain "treshold" this avoids flooding this external resource with
@@ -20,8 +20,10 @@ type RequestMonitor struct {
 func (r *RequestMonitor) isServiceAvailable(name string, timestamp int64) bool {
 	s := GetInstance()
 	lastCall, ok := instance.lastCalls.Load(name)
+	diffLastCall := timestamp - lastCall.(int64)
+	waitInterval := int64(s.waitIntervals[name])
 
-	if ok && timestamp-lastCall.(int64) >= s.waitIntervals[name] {
+	if ok && diffLastCall >= waitInterval {
 		instance.lastCalls.Store(name, timestamp)
 		return true
 	}
@@ -40,7 +42,7 @@ func GetInstance() *RequestMonitor {
 		amazonWaitInterval := config.GetIntProperty("amazonRequestWaitIntervalMilis")
 		bestBuyWaitInterval := config.GetIntProperty("bestbuyRequestWaitIntervalMilis")
 
-		wi := map[string]int64{
+		wi := map[string]int{
 			model.Walmart: walmartWaitInterval,
 			model.Ebay:    eBayWaitInterval,
 			model.Amazon:  amazonWaitInterval,

@@ -4,25 +4,45 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"fmt"
 	"github.com/gorilla/mux"
+	"github.com/guilhebl/go-offer/common/config"
 	"github.com/guilhebl/go-offer/common/model"
 )
 
-// Searches with no keywords for Trending and Promotional Deals in each marketplace provider
-func Index(w http.ResponseWriter, r *http.Request) {
-	// search with empty keyword
-	m := make(map[string]string)
-	result := SearchOffers(m)
-	if result == nil {
-		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+// handles error conditions coming from service layer
+func handleErr(errMsg string, w http.ResponseWriter) {
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+
+	switch errMsg {
+	case model.InvalidRequest:
+		w.WriteHeader(http.StatusBadRequest)
+		if err := json.NewEncoder(w).Encode(model.InvalidRequest); err != nil {
+			panic(err)
+		}
+		return
+	default:
 		w.WriteHeader(http.StatusInternalServerError)
-		if err := json.NewEncoder(w).Encode("internal error"); err != nil {
+		if err := json.NewEncoder(w).Encode(model.InternalError); err != nil {
 			panic(err)
 		}
 		return
 	}
+}
 
-	// set response
+// Searches with no keywords for Trending and Promotional Deals in each marketplace provider
+func Index(w http.ResponseWriter, r *http.Request) {
+	fmt.Printf("Index: %s", r.URL)
+
+	// search with empty keyword
+	req := model.NewEmptyListRequest(config.GetIntProperty("defaultRowsPerPage"))
+	result, err := SearchOffers(req)
+	if err != nil {
+		handleErr(err.Error(), w)
+		return
+	}
+
+	// set ok response
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
 	if err := json.NewEncoder(w).Encode(result); err != nil {
@@ -41,25 +61,9 @@ func Search(w http.ResponseWriter, r *http.Request) {
 	}
 	defer r.Body.Close()
 
-	// validates and builds map from request
-	m, err := req.Map()
+	result, err := SearchOffers(&req)
 	if err != nil {
-		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-		w.WriteHeader(http.StatusBadRequest)
-		if err := json.NewEncoder(w).Encode("invalid request"); err != nil {
-			panic(err)
-		}
-		return
-	}
-
-	result := SearchOffers(m)
-	if result == nil {
-		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-		w.WriteHeader(http.StatusInternalServerError)
-		if err := json.NewEncoder(w).Encode("internal error"); err != nil {
-			panic(err)
-		}
-		return
+		handleErr(err.Error(), w)
 	}
 
 	// set response
@@ -77,32 +81,21 @@ func Show(w http.ResponseWriter, r *http.Request) {
 	var err error
 	if id = vars["id"]; err != nil {
 		panic(err)
+		handleErr(model.InvalidRequest, w)
 	}
 
 	idType := r.FormValue("idType")
-	if idType == "" {
-		panic("invalid IdType")
-	}
-
 	source := r.FormValue("source")
-	if source == "" {
-		panic(err)
-	}
-
 	country := r.FormValue("country")
-	if source == "" {
-		country = model.UnitedStates
+
+	if idType == "" || source == "" || id == "" {
+		handleErr(model.InvalidRequest, w)
 	}
 
-	result := GetOfferDetail(id, idType, source, country)
-	//if result == nil {
-	//	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-	//	w.WriteHeader(http.StatusInternalServerError)
-	//	if err := json.NewEncoder(w).Encode("internal error"); err != nil {
-	//		panic(err)
-	//	}
-	//	return
-	//}
+	result, err := GetOfferDetail(id, idType, source, country)
+	if err != nil {
+		handleErr(err.Error(), w)
+	}
 
 	if result != nil && result.Offer.Id != "" {
 		w.Header().Set("Content-Type", "application/json; charset=UTF-8")

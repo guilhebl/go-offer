@@ -1,6 +1,7 @@
 package offer
 
 import (
+	"encoding/json"
 	"github.com/guilhebl/go-offer/common/config"
 	"github.com/guilhebl/go-offer/common/model"
 	"github.com/guilhebl/go-offer/offer/amazon"
@@ -12,8 +13,45 @@ import (
 	"strings"
 )
 
+// searches offers - tries to fetch 1st in cache if not found calls marketplace
+func SearchOffers(r *model.ListRequest) (*model.OfferList, error) {
+	json, _ := json.Marshal(&r)
+	key := string(json)
+	if key == "" {
+		key = model.Trending
+	}
+	log.Printf("Search Offers: %s", key)
+
+	// validate and tranform request before querying marketplace
+	m, err := r.Map()
+	if err != nil {
+		return nil, err
+	}
+
+	// search first in cache
+	cacheEnabled := config.GetBoolProperty("cacheEnabled")
+	var obj *model.OfferList
+	if cacheEnabled {
+		obj, err = GetInstance().RedisCache.GetOfferList(key)
+		if obj != nil && err == nil {
+			return obj, nil
+		}
+	}
+
+	// store valid output in cache
+	obj = searchOffers(m)
+	if cacheEnabled && obj != nil {
+		err = GetInstance().RedisCache.SetOfferList(key, obj)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return obj, nil
+}
+
 // Searches marketplace providers by keyword
-func SearchOffers(m map[string]string) *model.OfferList {
+func searchOffers(m map[string]string) *model.OfferList {
 	log.Printf("Search: %v", m)
 
 	country := m["country"]
@@ -22,7 +60,9 @@ func SearchOffers(m map[string]string) *model.OfferList {
 	}
 
 	// build empty response
-	capacity := config.GetIntProperty("defaultOfferListCapacity")
+	rowsPerPage := int(config.GetIntProperty("defaultRowsPerPage"))
+	numProviders := config.CountMarketplaceProviderListSize()
+	capacity := numProviders * rowsPerPage
 	list := model.NewOfferList(make([]model.Offer, 0, capacity), 1, 1, 0)
 
 	// search providers
@@ -84,7 +124,7 @@ func getProvidersByCountry(country string) []string {
 }
 
 // Gets Product Detail from marketplace provider by Id and IdType, fetching competitors prices using UPC
-func GetOfferDetail(id, idType, source, country string) *model.OfferDetail {
+func GetOfferDetail(id, idType, source, country string) (*model.OfferDetail, error) {
 	det := getDetail(id, idType, source, country)
 
 	// if product has Upc fetch competitors details in parallel using worker pool jobs
@@ -125,7 +165,7 @@ func GetOfferDetail(id, idType, source, country string) *model.OfferDetail {
 		}
 	}
 
-	return det
+	return det, nil
 }
 
 // creates a job to fetch a product detail from a given source using id and idType and country

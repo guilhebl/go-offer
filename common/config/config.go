@@ -2,7 +2,6 @@ package config
 
 import (
 	"fmt"
-	"github.com/guilhebl/go-offer/common/model"
 	"github.com/guilhebl/go-props"
 	"github.com/guilhebl/xcrypto"
 	"log"
@@ -14,6 +13,12 @@ import (
 type Configuration struct {
 	Props *props.Properties
 }
+
+const (
+	// Run modes
+	Prod = "prod"
+	Test = "test"
+)
 
 var instance *Configuration
 var once sync.Once
@@ -35,7 +40,7 @@ func newConfiguration(mode string) *Configuration {
 	var p props.Properties
 	var err error
 
-	if mode == model.Prod {
+	if mode == Prod {
 		p, err = props.ReadPropertiesFile("common/config/app-config.properties")
 	} else {
 		p, err = props.ReadPropertiesFile("common/config/testdata/test-app-config.properties")
@@ -56,8 +61,12 @@ func GetProperty(p string) string {
 	return GetInstance().Props.GetProperty(p)
 }
 
-func GetIntProperty(p string) int64 {
-	return GetInstance().Props.GetIntProperty(p)
+func GetIntProperty(p string) int {
+	return int(GetInstance().Props.GetIntProperty(p))
+}
+
+func GetBoolProperty(p string) bool {
+	return GetInstance().Props.GetBoolProperty(p)
 }
 
 func getHost() string {
@@ -114,26 +123,4 @@ func BuildImgUrl(s string) string {
 func CountMarketplaceProviderListSize() int {
 	arr := strings.Split(GetProperty("marketplaceProviders"), ",")
 	return len(arr)
-}
-
-// returns max number of providers - default country USA
-func CountMarketplaceProviders(country string) int {
-	var size int
-
-	switch country {
-
-	//Canada
-	case model.Canada:
-		{
-			arr := strings.Split(GetProperty("marketplaceProvidersCanada"), ",")
-			size = len(arr)
-		}
-	default:
-		{
-			arr := strings.Split(GetProperty("marketplaceProviders"), ",")
-			size = len(arr)
-		}
-	}
-
-	return size
 }

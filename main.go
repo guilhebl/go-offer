@@ -4,13 +4,12 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/guilhebl/go-offer/common/model"
 	"github.com/guilhebl/go-offer/offer"
 )
 
 // runs app in PROD mode
 func main() {
-	run(model.Prod)
+	run("prod")
 }
 
 // run starts the app

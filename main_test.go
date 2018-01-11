@@ -35,7 +35,7 @@ func TestMain(m *testing.M) {
 	}()
 
 	log.Println("setting up test server...")
-	run(model.Test)
+	run("test")
 }
 
 func setup() {
@@ -377,7 +377,7 @@ func testSearchWithKeywordsInvalidRequest(t *testing.T, json []byte) {
 
 	// verify responses
 	body := response.Body.String()
-	assert.True(t, strings.Contains(body, "invalid request"))
+	assert.True(t, strings.Contains(body, model.InvalidRequest))
 
 	// get the amount of calls for the registered responders
 	assertCallsMade(t, http.MethodGet, WalmartSearchUrl, 0)
@@ -388,19 +388,19 @@ func testSearchWithKeywordsInvalidRequest(t *testing.T, json []byte) {
 
 // Tests Search with keywords invalid expects Bad Request 400 - sort order
 func TestSearchWithKeywordsInvalidSortOrder(t *testing.T) {
-	var jsonRequest = []byte(`{"searchColumns":[{"name":"name","value":"skyrim"}],"sortOrder":"abc","page":1,"rowsPerPage":10}`)
+	var jsonRequest = []byte(`{"searchColumns":[{"name":"name","value":"skyrim"}],"sortBy":"name", "sortOrder":"abc","page":1,"rowsPerPage":10}`)
 	testSearchWithKeywordsInvalidRequest(t, jsonRequest)
 }
 
 // Tests Search with keywords invalid expects Bad Request 400 - page
 func TestSearchWithKeywordsInvalidPage(t *testing.T) {
-	var jsonRequest = []byte(`{"searchColumns":[{"name":"name","value":"skyrim"}],"sortOrder":"asc","page":-1,"rowsPerPage":10}`)
+	var jsonRequest = []byte(`{"searchColumns":[{"name":"name","value":"skyrim"}],"sortBy":"name","sortOrder":"asc","page":-1,"rowsPerPage":10}`)
 	testSearchWithKeywordsInvalidRequest(t, jsonRequest)
 }
 
 // Tests Search with keywords invalid expects Bad Request 400 - rowsPerPage
 func TestSearchWithKeywordsInvalidRowsPerPage(t *testing.T) {
-	var jsonRequest = []byte(`{"searchColumns":[{"name":"name","value":"skyrim"}],"sortOrder":"asc","page":1,"rowsPerPage":-10}`)
+	var jsonRequest = []byte(`{"searchColumns":[{"name":"name","value":"skyrim"}],"sortBy":"name","sortOrder":"asc","page":1,"rowsPerPage":-10}`)
 	testSearchWithKeywordsInvalidRequest(t, jsonRequest)
 }
 

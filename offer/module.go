@@ -2,6 +2,7 @@ package offer
 
 import (
 	"github.com/gorilla/mux"
+	"github.com/guilhebl/go-offer/common/cache"
 	"github.com/guilhebl/go-offer/common/config"
 	"github.com/guilhebl/go-worker-pool"
 	"log"
@@ -12,9 +13,10 @@ import (
 // centralized module manager which holds references to JobQueue and other global app scoped objects
 // Singleton enforcing the module will be initialized at max. once per app.
 type Module struct {
-	Dispatcher job.WorkerPool
 	JobQueue   chan job.Job
+	Dispatcher *job.WorkerPool
 	Router     *mux.Router
+	RedisCache *cache.RedisCache
 }
 
 var instance *Module
@@ -44,17 +46,23 @@ func newModule(router *mux.Router, mode string) *Module {
 	// maxWorker := os.Getenv("MAX_WORKERS")
 	numCPUs := runtime.NumCPU()
 	maxWorkers := numCPUs
-
+	workerPool := job.NewWorkerPool(maxWorkers)
 	jobQueue := make(chan job.Job)
 
 	module := Module{
-		Dispatcher: job.NewWorkerPool(maxWorkers),
+		Dispatcher: &workerPool,
 		JobQueue:   jobQueue,
 		Router:     router,
 	}
 
 	// A buffered channel that we can send work requests on.
 	module.Dispatcher.Run(jobQueue)
+
+	// init cache
+	if config.GetBoolProperty("cacheEnabled") {
+		module.RedisCache = cache.BuildInstance()
+	}
+
 	return &module
 }
 

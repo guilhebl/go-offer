@@ -1,10 +1,6 @@
 package model
 
 const (
-	// Run modes
-	Prod = "prod"
-	Test = "test"
-
 	// Country Constants
 	Country      = "country"
 	UnitedStates = "usa"
@@ -34,4 +30,8 @@ const (
 	Trending     = "trending"
 	Search       = "search"
 	NoResults    = "noResults"
+
+	// Error Codes
+	InvalidRequest = "invalid request"
+	InternalError  = "internal error"
 )
