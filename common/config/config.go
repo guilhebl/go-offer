@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"github.com/guilhebl/go-offer/common/model"
 	"github.com/guilhebl/go-props"
 	"github.com/guilhebl/xcrypto"
 	"log"
@@ -123,4 +124,24 @@ func BuildImgUrl(s string) string {
 func CountMarketplaceProviderListSize() int {
 	arr := strings.Split(GetProperty("marketplaceProviders"), ",")
 	return len(arr)
+}
+
+// returns max number of providers - default country USA
+func CountMarketplaceProviders(country string) int {
+	var size int
+	switch country {
+	//Canada
+	case model.Canada:
+		{
+			arr := strings.Split(GetProperty("marketplaceProvidersCanada"), ",")
+			size = len(arr)
+		}
+	default:
+		{
+			arr := strings.Split(GetProperty("marketplaceProviders"), ",")
+			size = len(arr)
+		}
+	}
+
+	return size
 }

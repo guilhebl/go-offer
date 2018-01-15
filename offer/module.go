@@ -60,7 +60,10 @@ func newModule(router *mux.Router, mode string) *Module {
 
 	// init cache
 	if config.GetBoolProperty("cacheEnabled") {
-		module.RedisCache = cache.BuildInstance()
+		host := config.GetProperty("cacheHost")
+		port := config.GetProperty("cachePort")
+		cacheDefaultExpiration := config.GetIntProperty("cacheExpirationSeconds")
+		module.RedisCache = cache.BuildInstance(host, port, cacheDefaultExpiration)
 	}
 
 	return &module

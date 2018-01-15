@@ -52,6 +52,15 @@ after building run command
 ./go-offer
 
 
+### enable cache (optional)
+
+Setup and install REDIS cache as described [here](http://www.geekpills.com/operating-system/linux/install-configure-redis-ubuntu-17-10)
+
+to flush cache: `redis-cli FLUSHDB`
+
+make sure cache is disabled when running tests.
+
+
 ### REST API methods
 
 1. Search Trending offers:

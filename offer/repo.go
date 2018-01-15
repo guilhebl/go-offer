@@ -9,6 +9,7 @@ import (
 	"github.com/guilhebl/go-offer/offer/ebay"
 	"github.com/guilhebl/go-offer/offer/walmart"
 	"github.com/guilhebl/go-worker-pool"
+	"github.com/guilhebl/xcrypto"
 	"log"
 	"strings"
 )
@@ -20,7 +21,6 @@ func SearchOffers(r *model.ListRequest) (*model.OfferList, error) {
 	if key == "" {
 		key = model.Trending
 	}
-	log.Printf("Search Offers: %s", key)
 
 	// validate and tranform request before querying marketplace
 	m, err := r.Map()
@@ -29,10 +29,12 @@ func SearchOffers(r *model.ListRequest) (*model.OfferList, error) {
 	}
 
 	// search first in cache
+	hash := xcrypto.GenerateSHA1(key)
 	cacheEnabled := config.GetBoolProperty("cacheEnabled")
+
 	var obj *model.OfferList
 	if cacheEnabled {
-		obj, err = GetInstance().RedisCache.GetOfferList(key)
+		obj, err := GetInstance().RedisCache.GetOfferList(hash)
 		if obj != nil && err == nil {
 			return obj, nil
 		}
@@ -41,7 +43,7 @@ func SearchOffers(r *model.ListRequest) (*model.OfferList, error) {
 	// store valid output in cache
 	obj = searchOffers(m)
 	if cacheEnabled && obj != nil {
-		err = GetInstance().RedisCache.SetOfferList(key, obj)
+		err = GetInstance().RedisCache.SetOfferList(hash, obj)
 		if err != nil {
 			return nil, err
 		}

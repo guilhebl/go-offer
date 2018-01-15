@@ -23,9 +23,8 @@ func init() {
 	runtime.LockOSThread()
 }
 
-// TestMain builds a Test Server and runs several Functional Tests, it starts the server and actually is a running instance of the whole app, whenever
-// the server triggers external calls these are captured and mock data is returned instead, this way all functional tests can be done
-// without any external dependencies (offline mode)
+// TestMain builds a Test Server and runs Functional Tests. It starts the server in test mode, whenever
+// the server triggers external calls these are captured and mock data is returned instead.
 func TestMain(m *testing.M) {
 	setup()
 	go func() {

@@ -1,47 +1,25 @@
 package cache
 
 import (
-	"fmt"
-	"github.com/go-redis/cache"
 	"github.com/go-redis/redis"
-	"github.com/guilhebl/go-offer/common/model"
-	"github.com/vmihailenco/msgpack"
 	"log"
 	"sync"
 	"time"
+	"fmt"
+	"github.com/guilhebl/go-offer/common/model"
 )
 
 type RedisCache struct {
-	Codec *cache.Codec
-}
-
-// gets OfferList From Cache
-func (r *RedisCache) GetOfferList(key string) (*model.OfferList, error) {
-	var wanted model.OfferList
-	if err := r.Codec.Get(key, &wanted); err == nil {
-		fmt.Println("ERORR " + err.Error())
-
-		return nil, err
-	}
-	return &wanted, nil
-}
-
-// sets OfferList Into Cache - key JSON representation of request
-func (r *RedisCache) SetOfferList(key string, obj *model.OfferList) error {
-	err := r.Codec.Set(&cache.Item{
-		Key:        key,
-		Object:     obj,
-		Expiration: time.Hour,
-	})
-	return err
+	Client *redis.Client
+	CacheExpirationSeconds int
 }
 
 var redisCache *RedisCache
 var once sync.Once
 
-func BuildInstance() *RedisCache {
+func BuildInstance(host, port string, cacheExpirationSeconds int) *RedisCache {
 	once.Do(func() {
-		redisCache = newRedisCache()
+		redisCache = newRedisCache(host, port, cacheExpirationSeconds)
 	})
 	return redisCache
 }
@@ -51,31 +29,53 @@ func GetInstance() *RedisCache {
 }
 
 // Builds a new Redis Cache
-func newRedisCache() *RedisCache {
+func newRedisCache(host, port string, cacheExpirationSeconds int) *RedisCache {
 	log.Printf("New Cache")
 
-	ring := redis.NewRing(&redis.RingOptions{
-		Addrs: map[string]string{
-			"server1": ":6379",
-			"server2": ":6380",
-		},
-		PoolSize: 10,
+	address := fmt.Sprintf("%s:%s", host, port)
+
+	client := redis.NewClient(&redis.Options{
+		Addr:     address,
+		Password: "", // no password set
+		DB:       0,  // use default DB
 	})
 
-	codec := &cache.Codec{
-		Redis: ring,
-
-		Marshal: func(v interface{}) ([]byte, error) {
-			return msgpack.Marshal(v)
-		},
-		Unmarshal: func(b []byte, v interface{}) error {
-			return msgpack.Unmarshal(b, v)
-		},
-	}
-
+	client.FlushAll()
 	redisCache := RedisCache{
-		Codec: codec,
+		Client: client,
+		CacheExpirationSeconds: cacheExpirationSeconds,
 	}
 
 	return &redisCache
+}
+
+// get Object From Cache
+func (r *RedisCache) GetOfferList(key string) (*model.OfferList, error) {
+	var wanted model.OfferList
+	var err error
+
+	val, err := r.Client.Get(key).Result()
+	if err == redis.Nil {
+		return nil, err
+	}
+	if err != nil {
+		panic(err)
+	}
+
+	if err := wanted.UnmarshalBinary([]byte(val)); err != nil {
+		log.Printf("Unable to unmarshal data from REDIS cache: %s \n", err)
+		return nil, err
+	}
+
+	log.Printf("CACHE HIT for key %s", key)
+	return &wanted, nil
+}
+
+// sets Object in Cache using key
+func (r *RedisCache) SetOfferList(key string, obj *model.OfferList) error {
+	err := r.Client.Set(key, obj, time.Second * time.Duration(r.CacheExpirationSeconds)).Err()
+	if err != nil {
+		panic(err)
+	}
+	return err
 }
