@@ -12,30 +12,34 @@ import (
 	"github.com/guilhebl/xcrypto"
 	"log"
 	"strings"
+	"errors"
 )
 
 // searches offers - tries to fetch 1st in cache if not found calls marketplace
 func SearchOffers(r *model.ListRequest) (*model.OfferList, error) {
-	json, _ := json.Marshal(&r)
-	key := string(json)
+	// validates request before querying marketplace
+	if !r.IsValid() {
+		return nil, errors.New(model.InvalidRequest)
+	}
+
+	// transform request
+	jsonReq, _ := json.Marshal(&r)
+	key := string(jsonReq)
 	if key == "" {
 		key = model.Trending
 	}
-
-	// validate and tranform request before querying marketplace
-	m, err := r.Map()
-	if err != nil {
-		return nil, err
-	}
+	m := r.Map()
 
 	// search first in cache
 	hash := xcrypto.GenerateSHA1(key)
-	cacheEnabled := config.GetBoolProperty("cacheEnabled")
+	cacheEnabled := isCacheEnabled()
 
 	var obj *model.OfferList
 	if cacheEnabled {
-		obj, err := GetInstance().RedisCache.GetOfferList(hash)
-		if obj != nil && err == nil {
+		if data, _ := GetInstance().RedisCache.Get(hash); data != "" {
+			if err := json.Unmarshal([]byte(data), &obj); err != nil {
+				return nil, err
+			}
 			return obj, nil
 		}
 	}
@@ -43,7 +47,8 @@ func SearchOffers(r *model.ListRequest) (*model.OfferList, error) {
 	// store valid output in cache
 	obj = searchOffers(m)
 	if cacheEnabled && obj != nil {
-		err = GetInstance().RedisCache.SetOfferList(hash, obj)
+		data, _ := json.Marshal(&obj)
+		err := GetInstance().RedisCache.Set(hash, string(data))
 		if err != nil {
 			return nil, err
 		}
@@ -126,19 +131,41 @@ func getProvidersByCountry(country string) []string {
 }
 
 // Gets Product Detail from marketplace provider by Id and IdType, fetching competitors prices using UPC
-func GetOfferDetail(id, idType, source, country string) (*model.OfferDetail, error) {
-	det := getDetail(id, idType, source, country)
+func GetOfferDetail(r *model.DetailRequest) (*model.OfferDetail, error) {
+	// validate and transform request before querying marketplace
+	if !r.IsValid() {
+		return nil, errors.New(model.InvalidRequest)
+	}
+	jsonReq, _ := json.Marshal(&r)
+	key := string(jsonReq)
+
+	// search first in cache
+	hash := xcrypto.GenerateSHA1(key)
+	cacheEnabled := isCacheEnabled()
+
+	var obj *model.OfferDetail
+	if cacheEnabled {
+		if data, _ := GetInstance().RedisCache.Get(hash); data != "" {
+			if err := json.Unmarshal([]byte(data), &obj); err != nil {
+				return nil, err
+			}
+			return obj, nil
+		}
+	}
+
+	// store valid output in cache
+	obj = getDetail(r.Id, r.IdType, r.Source, r.Country)
 
 	// if product has Upc fetch competitors details in parallel using worker pool jobs
-	if det != nil && det.Offer.Upc != "" {
-		providers := getProvidersByCountry(country)
+	if obj != nil && obj.Offer.Upc != "" {
+		providers := getProvidersByCountry(r.Country)
 
 		// create a slice of jobResult outputs
 		jobOutputs := make([]<-chan job.JobResult, 0)
 
 		for i := 0; i < len(providers); i++ {
-			if p := providers[i]; p != source {
-				job := getDetailJob(det.Offer.Upc, model.Upc, providers[i], country)
+			if p := providers[i]; p != r.Source {
+				job := getDetailJob(obj.Offer.Upc, model.Upc, providers[i], r.Country)
 				if job != nil {
 					jobOutputs = append(jobOutputs, job.ReturnChannel)
 					// Push each job onto the queue.
@@ -162,13 +189,27 @@ func GetOfferDetail(id, idType, source, country string) (*model.OfferDetail, err
 					d.Offer.Rating,
 					d.Offer.NumReviews)
 
-				det.ProductDetailItems = append(det.ProductDetailItems, *detItem)
+				obj.ProductDetailItems = append(obj.ProductDetailItems, *detItem)
 			}
 		}
 	}
 
-	return det, nil
+	// store in cache if possible
+	if cacheEnabled && obj != nil {
+		data, err := json.Marshal(&obj)
+		if err != nil {
+			return nil, err
+		}
+
+		err = GetInstance().RedisCache.Set(hash, string(data))
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return obj, nil
 }
+
 
 // creates a job to fetch a product detail from a given source using id and idType and country
 func getDetailJob(id, idType, source, country string) *job.Job {
@@ -203,4 +244,8 @@ func getDetail(id, idType, source, country string) *model.OfferDetail {
 		return ebay.GetOfferDetail(id, idType, country)
 	}
 	return nil
+}
+
+func isCacheEnabled() bool {
+	return config.GetBoolProperty("cacheEnabled")
 }

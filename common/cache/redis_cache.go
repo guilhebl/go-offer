@@ -6,7 +6,6 @@ import (
 	"sync"
 	"time"
 	"fmt"
-	"github.com/guilhebl/go-offer/common/model"
 )
 
 type RedisCache struct {
@@ -49,31 +48,25 @@ func newRedisCache(host, port string, cacheExpirationSeconds int) *RedisCache {
 	return &redisCache
 }
 
-// get Object From Cache
-func (r *RedisCache) GetOfferList(key string) (*model.OfferList, error) {
-	var wanted model.OfferList
+// get Object from Cache
+func (r *RedisCache) Get(key string) (string, error) {
 	var err error
 
 	val, err := r.Client.Get(key).Result()
 	if err == redis.Nil {
-		return nil, err
+		return "", err
 	}
 	if err != nil {
 		panic(err)
 	}
 
-	if err := wanted.UnmarshalBinary([]byte(val)); err != nil {
-		log.Printf("Unable to unmarshal data from REDIS cache: %s \n", err)
-		return nil, err
-	}
-
 	log.Printf("CACHE HIT for key %s", key)
-	return &wanted, nil
+	return val, nil
 }
 
 // sets Object in Cache using key
-func (r *RedisCache) SetOfferList(key string, obj *model.OfferList) error {
-	err := r.Client.Set(key, obj, time.Second * time.Duration(r.CacheExpirationSeconds)).Err()
+func (r *RedisCache) Set(key, json string) error {
+	err := r.Client.Set(key, json, time.Second * time.Duration(r.CacheExpirationSeconds)).Err()
 	if err != nil {
 		panic(err)
 	}

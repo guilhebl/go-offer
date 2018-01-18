@@ -1,7 +1,6 @@
 package model
 
 import (
-	"errors"
 	"regexp"
 )
 
@@ -23,6 +22,7 @@ func NewListRequest(searchColumns []NameValue, sortBy, sortOrder string, page, r
 	}
 	return o
 }
+
 func NewEmptyListRequest(rowsPerPage int) *ListRequest {
 	o := &ListRequest{
 		SearchColumns: make([]NameValue, 0),
@@ -34,21 +34,18 @@ func NewEmptyListRequest(rowsPerPage int) *ListRequest {
 	return o
 }
 
-func (r *ListRequest) Map() (map[string]string, error) {
-	if !isValid(r) {
-		return nil, errors.New(InvalidRequest)
-	}
-
+// builds a map out of request params
+func (r *ListRequest) Map() map[string]string {
 	m := make(map[string]string)
 
 	for _, p := range r.SearchColumns {
 		m[p.Name] = p.Value
 	}
-	return m, nil
+	return m
 }
 
 // Checks if request is valid
-func isValid(r *ListRequest) bool {
+func (r *ListRequest) IsValid() bool {
 
 	// check valid page
 	if r.Page <= 0 || r.RowsPerPage <= 0 {

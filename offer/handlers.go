@@ -88,11 +88,8 @@ func Show(w http.ResponseWriter, r *http.Request) {
 	source := r.FormValue("source")
 	country := r.FormValue("country")
 
-	if idType == "" || source == "" || id == "" {
-		handleErr(model.InvalidRequest, w)
-	}
-
-	result, err := GetOfferDetail(id, idType, source, country)
+	request := model.NewDetailRequest(id, idType, source, country)
+	result, err := GetOfferDetail(request)
 	if err != nil {
 		handleErr(err.Error(), w)
 	}
