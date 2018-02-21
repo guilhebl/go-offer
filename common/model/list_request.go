@@ -2,6 +2,7 @@ package model
 
 import (
 	"regexp"
+	"strconv"
 )
 
 type ListRequest struct {
@@ -38,9 +39,17 @@ func NewEmptyListRequest(rowsPerPage int) *ListRequest {
 func (r *ListRequest) Map() map[string]string {
 	m := make(map[string]string)
 
+	// put search columns
 	for _, p := range r.SearchColumns {
 		m[p.Name] = p.Value
 	}
+
+	// put other fields
+	m[SortBy] = r.SortBy
+	m[SortOrder] = r.SortOrder
+	m[Page] = strconv.Itoa(r.Page)
+	m[RowsPerPage] = strconv.Itoa(r.RowsPerPage)
+
 	return m
 }
 

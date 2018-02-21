@@ -62,7 +62,7 @@ func SearchOffers(r *model.ListRequest) (*model.OfferList, error) {
 func searchOffers(m map[string]string) *model.OfferList {
 	log.Printf("Search: %v", m)
 
-	country := m["country"]
+	country := m[model.Country]
 	if country == "" {
 		country = model.UnitedStates
 	}
@@ -97,7 +97,7 @@ func searchOffers(m map[string]string) *model.OfferList {
 	}
 
 	// sort list
-	sortList(list, country, m[model.Name], m["sortBy"], m["sortOrder"] == "asc")
+	sortList(list, country, m[model.Name], m[model.SortBy], m[model.SortOrder] == "asc")
 
 	return list
 }
