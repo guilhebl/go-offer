@@ -31,3 +31,24 @@ func NewOffer(id, upc, name, partyName, semanticName, mainImageUrl, partyImageUr
 	}
 	return o
 }
+
+// represents an Offer with Rank information:
+// num keywords - the number of keywords found out of a group of N keywords
+// total - total matches of keywords found in this offer
+// lowest index - the lowest index found
+type OfferKeywordRank struct {
+	Offer        Offer
+	NumKeywords  int
+	TotalMatches int
+	LowestIndex  int
+}
+
+func NewOfferKeywordRank(o Offer, nk, tm, i int) *OfferKeywordRank {
+	or := &OfferKeywordRank{
+		Offer:        o,
+		NumKeywords:  nk,
+		TotalMatches: tm,
+		LowestIndex:  i,
+	}
+	return or
+}

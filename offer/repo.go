@@ -2,6 +2,7 @@ package offer
 
 import (
 	"encoding/json"
+	"errors"
 	"github.com/guilhebl/go-offer/common/config"
 	"github.com/guilhebl/go-offer/common/model"
 	"github.com/guilhebl/go-offer/offer/amazon"
@@ -11,8 +12,9 @@ import (
 	"github.com/guilhebl/go-worker-pool"
 	"github.com/guilhebl/xcrypto"
 	"log"
+	"math/rand"
+	"sort"
 	"strings"
-	"errors"
 )
 
 // searches offers - tries to fetch 1st in cache if not found calls marketplace
@@ -28,7 +30,6 @@ func SearchOffers(r *model.ListRequest) (*model.OfferList, error) {
 	if key == "" {
 		key = model.Trending
 	}
-	m := r.Map()
 
 	// search first in cache
 	hash := xcrypto.GenerateSHA1(key)
@@ -44,8 +45,8 @@ func SearchOffers(r *model.ListRequest) (*model.OfferList, error) {
 		}
 	}
 
-	// store valid output in cache
-	obj = searchOffers(m)
+	// if not found in cache search and store valid output in cache
+	obj = searchOffers(r.Map())
 	if cacheEnabled && obj != nil {
 		data, _ := json.Marshal(&obj)
 		err := GetInstance().RedisCache.Set(hash, string(data))
@@ -94,7 +95,217 @@ func searchOffers(m map[string]string) *model.OfferList {
 			mergeSearchResponse(list, r.Value.(*model.OfferList))
 		}
 	}
+
+	// sort list
+	sortList(list, country, m[model.Name], m["sortBy"], m["sortOrder"] == "asc")
+
 	return list
+}
+
+// sorts offer list by field
+func sortList(list *model.OfferList, country, keyword, sortBy string, asc bool) {
+	switch sortBy {
+
+	case model.Id:
+		sort.Slice(list.List, func(i, j int) bool {
+			ret := list.List[i].Id < list.List[j].Id
+			if asc {
+				return ret
+			}
+			return !ret
+		})
+	case model.Name:
+		sort.Slice(list.List, func(i, j int) bool {
+			ret := list.List[i].Name < list.List[j].Name
+			if asc {
+				return ret
+			}
+			return !ret
+		})
+	case model.Price:
+		sort.Slice(list.List, func(i, j int) bool {
+			ret := list.List[i].Price < list.List[j].Price
+			if asc {
+				return ret
+			}
+			return !ret
+		})
+	case model.Rating:
+		sort.Slice(list.List, func(i, j int) bool {
+			ret := list.List[i].Rating < list.List[j].Rating
+			if asc {
+				return ret
+			}
+			return !ret
+		})
+	case model.NumReviews:
+		sort.Slice(list.List, func(i, j int) bool {
+			ret := list.List[i].NumReviews < list.List[j].NumReviews
+			if asc {
+				return ret
+			}
+			return !ret
+		})
+	default:
+		if keyword != "" {
+			sortByBestResults(list, keyword)
+		} else {
+			sortGroupedByProvider(list, country)
+		}
+	}
+}
+
+// Groups the results in buckets with each provider appearing in the first group of results
+func sortGroupedByProvider(list *model.OfferList, country string) {
+	m := make(map[string][]model.Offer)
+
+	// split providers into buckets
+	providers := getProvidersByCountry(country)
+	for _, p := range providers {
+		m[p] = make([]model.Offer, 0)
+	}
+
+	// fill each providers queue
+	for _, o := range list.List {
+		m[o.PartyName] = append(m[o.PartyName], o)
+	}
+
+	// shuffle each queue
+	for _, p := range providers {
+		src := m[p]
+		dest := make([]model.Offer, len(src))
+		perm := rand.Perm(len(src))
+		for i, v := range perm {
+			dest[v] = src[i]
+		}
+		m[p] = dest
+	}
+
+	// create output list
+	listSorted := make([]model.Offer, 0)
+
+	// keep filling groups of items from each provider queue until empty
+	for i := 0; i < len(list.List); i++ {
+
+		// fetch a random index of provider slice
+		idx := rand.Intn(len(providers))
+		p := providers[idx]
+
+		// pick first element from queue if not empty
+		if len(m[p]) > 0 {
+			offerList := m[p]
+			o := offerList[0]
+
+			// append to output list
+			listSorted = append(listSorted, o)
+
+			// remove element from queue
+			m[p] = append(offerList[:0], offerList[1:]...)
+		}
+
+		// remove provider from next round
+		providers = append(providers[:idx], providers[idx+1:]...)
+
+		// reset list of providers if all removed
+		if len(providers) == 0 {
+			providers = getProvidersByCountry(country)
+		}
+	}
+
+	list.List = listSorted
+}
+
+// ranks by keyword distance and sorts list based on ranking found
+func sortByBestResults(list *model.OfferList, keyword string) {
+
+	// sort source list
+	dest := make([]model.Offer, len(list.List))
+	perm := rand.Perm(len(list.List))
+	for i, v := range perm {
+		dest[v] = list.List[i]
+	}
+	list.List = dest
+
+	// filter keywords
+	keywords := strings.Split(keyword, " ")
+
+	// filter all blank or empty spaces
+	words := make([]string, 0)
+	for _, w := range keywords {
+		t := strings.TrimSpace(w)
+		if t != "" {
+			words = append(words, t)
+		}
+	}
+
+	if len(words) == 0 {
+		return
+	}
+
+	// with remaining words search for distance ranking for all offers
+	rankings := make([]model.OfferKeywordRank, 0)
+
+	for i := 0; i < len(list.List); i++ {
+		offer := list.List[i]
+		numKeywords, totalMatches, lowestIndex := calculateKeywordsRank(words, &offer)
+		offerRank := model.NewOfferKeywordRank(offer, numKeywords, totalMatches, lowestIndex)
+		rankings = append(rankings, *offerRank)
+	}
+
+	// sort list by ranking
+	sort.Slice(rankings, func(i, j int) bool {
+
+		// try by num unique keywords
+		if rankings[i].NumKeywords != rankings[j].NumKeywords {
+			return rankings[i].NumKeywords > rankings[j].NumKeywords
+		}
+
+		// if same try by Index
+		if rankings[i].LowestIndex != rankings[j].LowestIndex {
+			return rankings[i].LowestIndex < rankings[j].LowestIndex
+		}
+
+		// try by total matches
+		return rankings[i].TotalMatches > rankings[j].TotalMatches
+	})
+
+	// copy rankings offers to new list
+	listSorted := make([]model.Offer, 0)
+
+	for i := 0; i < len(rankings); i++ {
+		listSorted = append(listSorted, rankings[i].Offer)
+	}
+
+	list.List = listSorted
+}
+
+// calculates the ranking based on keywords from a slice that are found in the title of this offer, num keywords found,
+// lowest index found for any of the keywords
+func calculateKeywordsRank(keywords []string, o *model.Offer) (int, int, int) {
+
+	numKeywords, totalMatches, i := 0, 0, -1
+
+	// to keep track of the unique found already
+	found := make(map[string]bool)
+	text := strings.ToLower(o.Name)
+
+	for _, w := range keywords {
+		word := strings.ToLower(w)
+		j := strings.Index(text, word)
+
+		if j != -1 {
+			if !found[word] {
+				numKeywords += 1
+				found[word] = true
+			}
+			if i == -1 || i > j {
+				i = j
+			}
+			totalMatches += 1
+		}
+	}
+
+	return numKeywords, totalMatches, i
 }
 
 func mergeSearchResponse(list *model.OfferList, list2 *model.OfferList) {
@@ -209,7 +420,6 @@ func GetOfferDetail(r *model.DetailRequest) (*model.OfferDetail, error) {
 
 	return obj, nil
 }
-
 
 // creates a job to fetch a product detail from a given source using id and idType and country
 func getDetailJob(id, idType, source, country string) *job.Job {

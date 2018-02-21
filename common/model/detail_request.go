@@ -1,17 +1,17 @@
 package model
 
 type DetailRequest struct {
-	Id 			  string      `json:"id"`
-	IdType	      string      `json:"idType"`
-	Source        string      `json:"source"`
-	Country		  string      `json:"country"`
+	Id      string `json:"id"`
+	IdType  string `json:"idType"`
+	Source  string `json:"source"`
+	Country string `json:"country"`
 }
 
 func NewDetailRequest(id, idType, source, country string) *DetailRequest {
 	o := &DetailRequest{
-		Id: id,
-		IdType: idType,
-		Source: source,
+		Id:      id,
+		IdType:  idType,
+		Source:  source,
 		Country: country,
 	}
 	return o

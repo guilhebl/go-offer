@@ -23,8 +23,9 @@ func init() {
 	runtime.LockOSThread()
 }
 
-// TestMain builds a Test Server and runs Functional Tests. It starts the server in test mode, whenever
-// the server triggers external calls these are captured and mock data is returned instead.
+// TestMain builds an instance of the application in test mode to run e2e tests. Every external calls are intercepted through stubs
+// that returns test JSON data instead of really calling external services.
+// This way it's possible to build and run offline Functional Tests on top of the actual running stack and test multiple end-to-end scenarios.
 func TestMain(m *testing.M) {
 	setup()
 	go func() {
@@ -59,6 +60,8 @@ func readFile(path string) []byte {
 }
 
 const (
+	f = 10.0
+
 	WalmartTrendingUrl       = "http://api.walmartlabs.com/v1/trends"
 	WalmartSearchUrl         = "http://api.walmartlabs.com/v1/search"
 	WalmartGetDetailUrl      = "http://api.walmartlabs.com/v1/items/53966162"
@@ -323,7 +326,7 @@ func TestSearchWithKeywordsSortByNameDesc(t *testing.T) {
 
 	// call our local server API
 	endpoint := "http://localhost:8080/offers"
-	var jsonRequest = []byte(`{"searchColumns":[{"name":"name","value":"skyrim"}],"sortOrder":"desc","page":1,"rowsPerPage":10}`)
+	var jsonRequest = []byte(`{"searchColumns":[{"name":"name","value":"skyrim"}],"sortBy":"name", "sortOrder":"desc","page":1,"rowsPerPage":10}`)
 
 	req, _ := http.NewRequest(http.MethodPost, endpoint, bytes.NewBuffer(jsonRequest))
 	req.Header.Set("Content-Type", "application/json")
@@ -334,6 +337,7 @@ func TestSearchWithKeywordsSortByNameDesc(t *testing.T) {
 	body := response.Body.String()
 
 	assert.True(t, strings.HasPrefix(body, `{"list":[{"`))
+	assert.True(t, strings.Contains(body, `{"id":"0","upc":"","name":"Skyrim VR Digital - PlayStation 4`))
 
 	walmartSnippet := `{"id":"53966162","upc":"093155171244","name":"Skyrim Special Edition (Xbox One)","partyName":"walmart.com",`
 	assert.True(t, strings.Contains(body, walmartSnippet))

@@ -1,15 +1,15 @@
 package cache
 
 import (
+	"fmt"
 	"github.com/go-redis/redis"
 	"log"
 	"sync"
 	"time"
-	"fmt"
 )
 
 type RedisCache struct {
-	Client *redis.Client
+	Client                 *redis.Client
 	CacheExpirationSeconds int
 }
 
@@ -41,7 +41,7 @@ func newRedisCache(host, port string, cacheExpirationSeconds int) *RedisCache {
 
 	client.FlushAll()
 	redisCache := RedisCache{
-		Client: client,
+		Client:                 client,
 		CacheExpirationSeconds: cacheExpirationSeconds,
 	}
 
@@ -66,7 +66,7 @@ func (r *RedisCache) Get(key string) (string, error) {
 
 // sets Object in Cache using key
 func (r *RedisCache) Set(key, json string) error {
-	err := r.Client.Set(key, json, time.Second * time.Duration(r.CacheExpirationSeconds)).Err()
+	err := r.Client.Set(key, json, time.Second*time.Duration(r.CacheExpirationSeconds)).Err()
 	if err != nil {
 		panic(err)
 	}
