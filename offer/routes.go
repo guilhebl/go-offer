@@ -25,6 +25,24 @@ var routes = Routes{
 		Search,
 	},
 	Route{
+		"Offers",
+		"GET",
+		"/offerlist",
+		SearchDatastore,
+	},
+	Route{
+		"AddOffer",
+		"POST",
+		"/offerlist",
+		AddOffer,
+	},
+	Route{
+		"Reset",
+		"GET",
+		"/reset",
+		ResetDatastore,
+	},
+	Route{
 		"Show",
 		"GET",
 		"/offers/{id}",

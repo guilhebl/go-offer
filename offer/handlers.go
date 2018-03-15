@@ -17,16 +17,10 @@ func handleErr(errMsg string, w http.ResponseWriter) {
 	switch errMsg {
 	case model.InvalidRequest:
 		w.WriteHeader(http.StatusBadRequest)
-		if err := json.NewEncoder(w).Encode(model.InvalidRequest); err != nil {
-			panic(err)
-		}
-		return
+		json.NewEncoder(w).Encode(model.InvalidRequest)
 	default:
 		w.WriteHeader(http.StatusInternalServerError)
-		if err := json.NewEncoder(w).Encode(model.InternalError); err != nil {
-			panic(err)
-		}
-		return
+		json.NewEncoder(w).Encode(model.InternalError)
 	}
 }
 
@@ -52,23 +46,94 @@ func Index(w http.ResponseWriter, r *http.Request) {
 
 // Searches for offers from marketplace providers using keyword and other filters
 func Search(w http.ResponseWriter, r *http.Request) {
+
+	defer r.Body.Close()
+
 	// decode request
 	decoder := json.NewDecoder(r.Body)
 	var req model.ListRequest
-	err := decoder.Decode(&req)
-	if err != nil {
-		panic(err)
+	var err error
+	if err = decoder.Decode(&req); err != nil {
+		handleErr(err.Error(), w)
+		return
 	}
-	defer r.Body.Close()
 
 	result, err := SearchOffers(&req)
 	if err != nil {
 		handleErr(err.Error(), w)
+		return
 	}
 
 	// set response
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
+	if err := json.NewEncoder(w).Encode(result); err != nil {
+		panic(err)
+	}
+}
+
+// Reset Db
+func ResetDatastore(w http.ResponseWriter, r *http.Request) {
+	fmt.Printf("Reset Datastore: %s", r.URL)
+
+	err := ResetDb()
+	if err != nil {
+		handleErr(err.Error(), w)
+		return
+	}
+
+	// set ok response
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	w.WriteHeader(http.StatusOK)
+	if err := json.NewEncoder(w).Encode("OK"); err != nil {
+		panic(err)
+	}
+}
+
+// Searches for all offers in Db
+func SearchDatastore(w http.ResponseWriter, r *http.Request) {
+	fmt.Printf("Search Datastore: %s", r.URL)
+
+	req := model.NewEmptyListRequest(config.GetIntProperty("defaultRowsPerPage"))
+	result, err := SearchOffersDb(req)
+	if err != nil {
+		handleErr(err.Error(), w)
+		return
+	}
+
+	// set ok response
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	w.WriteHeader(http.StatusOK)
+	if err := json.NewEncoder(w).Encode(result); err != nil {
+		panic(err)
+	}
+}
+
+// Adds to Datastore a new offer
+func AddOffer(w http.ResponseWriter, r *http.Request) {
+	fmt.Printf("Add to Datastore: %s", r.URL)
+
+	defer r.Body.Close()
+
+	// decode request
+	decoder := json.NewDecoder(r.Body)
+	var req model.Offer
+	var err error
+	if err = decoder.Decode(&req); err != nil {
+		fmt.Printf("ERROR ON DECODE %e", err.Error())
+		handleErr(err.Error(), w)
+		return
+	}
+
+	result, err := AddOfferDb(&req)
+	if err != nil {
+		handleErr(err.Error(), w)
+		return
+	}
+
+	// set response
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	w.WriteHeader(http.StatusCreated)
 	if err := json.NewEncoder(w).Encode(result); err != nil {
 		panic(err)
 	}
@@ -80,8 +145,8 @@ func Show(w http.ResponseWriter, r *http.Request) {
 	var id string
 	var err error
 	if id = vars["id"]; err != nil {
-		panic(err)
 		handleErr(model.InvalidRequest, w)
+		return
 	}
 
 	idType := r.FormValue("idType")
@@ -92,6 +157,7 @@ func Show(w http.ResponseWriter, r *http.Request) {
 	result, err := GetOfferDetail(request)
 	if err != nil {
 		handleErr(err.Error(), w)
+		return
 	}
 
 	if result != nil && result.Offer.Id != "" {

@@ -8,6 +8,8 @@ import (
 	"log"
 	"runtime"
 	"sync"
+	"github.com/guilhebl/go-offer/common/db"
+	"net/http"
 )
 
 // centralized module manager which holds references to JobQueue and other global app scoped objects
@@ -17,14 +19,15 @@ type Module struct {
 	Dispatcher *job.WorkerPool
 	Router     *mux.Router
 	RedisCache *cache.RedisCache
+	CassandraClient *db.CassandraClient
 }
 
 var instance *Module
 var once sync.Once
 
-func BuildInstance(router *mux.Router, mode string) *Module {
+func BuildInstance(mode string) *Module {
 	once.Do(func() {
-		instance = newModule(router, mode)
+		instance = newModule(mode)
 	})
 	return instance
 }
@@ -36,11 +39,22 @@ func GetInstance() *Module {
 // Builds a new module which is a container for the running app instance
 // router - the router configuration with URL routes and mapped action handlers
 // mode - test or production modes, which will make the app read from either test or prod config properties.
-func newModule(router *mux.Router, mode string) *Module {
+func newModule(mode string) *Module {
 	log.Printf("New Module, mode: %s", mode)
 
 	// init config
 	config.BuildInstance(mode)
+
+	// init mux
+	router := NewRouter()
+	// init static folder
+	router.PathPrefix("/static").Handler(http.StripPrefix("/static", http.FileServer(http.Dir("static/"))))
+
+	// init Db
+	clusterConfig := db.BuildInstance(config.GetProperty("cassandraHost"),
+		config.GetProperty("cassandraUser"),
+		config.GetProperty("cassandraPassword"),
+		config.GetProperty("cassandraKeyspace"))
 
 	// fetch ENV var param ?
 	// maxWorker := os.Getenv("MAX_WORKERS")
@@ -53,6 +67,7 @@ func newModule(router *mux.Router, mode string) *Module {
 		Dispatcher: &workerPool,
 		JobQueue:   jobQueue,
 		Router:     router,
+		CassandraClient: clusterConfig,
 	}
 
 	// A buffered channel that we can send work requests on.

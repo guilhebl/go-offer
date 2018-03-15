@@ -15,6 +15,7 @@ import (
 	"math/rand"
 	"sort"
 	"strings"
+	"github.com/guilhebl/go-offer/common/db"
 )
 
 // searches offers - tries to fetch 1st in cache if not found calls marketplace
@@ -56,6 +57,34 @@ func SearchOffers(r *model.ListRequest) (*model.OfferList, error) {
 	}
 
 	return obj, nil
+}
+
+// resets Db
+func ResetDb() error {
+	return db.Reset()
+}
+
+// searches offers in Db
+func SearchOffersDb(r *model.ListRequest) (*model.OfferList, error) {
+	// validates request before querying marketplace
+	if !r.IsValid() {
+		return nil, errors.New(model.InvalidRequest)
+	}
+
+	list := model.NewOfferList(make([]model.Offer, 0, 40), 1, 1, 0)
+	var err error
+	list.List, err = db.GetOffers()
+	return list, err
+}
+
+// add offer to Db - returns offer with new id
+func AddOfferDb(r *model.Offer) (*model.Offer, error) {
+	// validates request before querying marketplace
+	if r.Name == "" {
+		return nil, errors.New(model.InvalidRequest)
+	}
+
+	return db.InsertOffer(r)
 }
 
 // Searches marketplace providers by keyword

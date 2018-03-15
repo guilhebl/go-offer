@@ -1,15 +1,13 @@
 package offer
 
 import (
-	"github.com/guilhebl/go-offer/common/model"
 	"testing"
 )
 
 // tests if app module is built correctly setting up worker pool and other global scoped objects
 func TestGetInstance(t *testing.T) {
 
-	router := NewRouter()
-	module := BuildInstance(router, "test")
+	module := BuildInstance("test")
 
 	if module == nil {
 		t.Error("Error while creating Module")

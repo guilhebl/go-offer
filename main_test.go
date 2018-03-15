@@ -15,6 +15,7 @@ import (
 	"runtime"
 	"strings"
 	"testing"
+	"fmt"
 )
 
 var app offer.Module
@@ -400,6 +401,54 @@ func TestSearchWithKeywordsSortByPriceAsc(t *testing.T) {
 	assertCallsMade(t, http.MethodGet, BestBuySearchUrl, 1)
 	assertCallsMade(t, http.MethodGet, EbaySearchUrl, 1)
 	assertCallsMade(t, http.MethodGet, AmazonSearchUrl, 1)
+}
+
+// tests Reset and List from Datastore - Cassandra must be running
+func TestSearchDatastore(t *testing.T) {
+	// 1st call Reset to reset database and re-create keystore
+	endpoint1 := "http://localhost:8080/reset"
+	req1, _ := http.NewRequest(http.MethodGet, endpoint1, nil)
+	response1 := executeRequest(req1)
+	assert.Equal(t, 200, response1.Code)
+
+	// verify responses
+	body1 := response1.Body.String()
+	fmt.Print("RESULT RESET = " + body1)
+
+	// 2nd call our local server API to fetch list
+	endpoint := "http://localhost:8080/offerlist"
+	req, _ := http.NewRequest(http.MethodGet, endpoint, nil)
+	response := executeRequest(req)
+	assert.Equal(t, 200, response.Code)
+	body := response.Body.String()
+
+	assert.True(t, strings.HasPrefix(body, `{"list":[{"`))
+	assert.True(t, strings.Contains(body, `"id":"1","upc":"upc12345678","name":"offer 1"`))
+	assert.True(t, strings.Contains(body, `"id":"2","upc":"upc22345678","name":"offer 2"`))
+	assert.True(t, strings.Contains(body, `"id":"3","upc":"upc32345678","name":"offer 3"`))
+	assert.True(t, strings.Contains(body, `"id":"4","upc":"upc42345678","name":"offer 4"`))
+}
+
+// tests Add to Datastore - Cassandra must be running
+func TestAddOfferDatastore(t *testing.T) {
+	// 1st call Reset to reset database and re-create keystore
+	endpoint1 := "http://localhost:8080/reset"
+	req1, _ := http.NewRequest(http.MethodGet, endpoint1, nil)
+	response1 := executeRequest(req1)
+	assert.Equal(t, 200, response1.Code)
+
+	// call our local server API to add
+	endpoint := "http://localhost:8080/offerlist"
+	var jsonRequest = []byte(`{"upc":"upc999","name":"test record","partyName":"amazon.com","semanticName":"http:/item01","mainImageFileUrl":"http:/item01.jpg","partyImageFileUrl":"amazon-logo.jpg","productCategory":"laptops","price":500,"rating":3.88,"numReviews":120}`)
+
+	req, _ := http.NewRequest(http.MethodPost, endpoint, bytes.NewBuffer(jsonRequest))
+	req.Header.Set("Content-Type", "application/json")
+	response := executeRequest(req)
+	assert.Equal(t, 201, response.Code)
+
+	// verify responses
+	body := response.Body.String()
+	assert.True(t, strings.Contains(body, `"upc":"upc999","name":"test record","partyName":"amazon.com"`))
 }
 
 // Tests Search with keywords invalid expects Bad Request 400

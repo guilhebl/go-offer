@@ -24,9 +24,9 @@ func run(mode string) {
 
 // starts a new server instance using mode config and port
 func startServer(port, mode string) {
-	router := offer.NewRouter()
-	// inits app module setting up worker pool and other global scoped objects
-	offer.BuildInstance(router, mode)
 
-	log.Fatal(http.ListenAndServe(port, router))
+	// inits app module setting up worker pool and other global scoped objects
+	offer.BuildInstance(mode)
+
+	log.Fatal(http.ListenAndServe(port, offer.GetInstance().Router))
 }

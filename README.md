@@ -4,7 +4,7 @@ Go Offer is an open source project that aims to bring together several world-wid
 It's goal is to unify diverse market sources in order to connect people directly with products and services that they need through a global marketplace platform.
 Connecting users to local and international marketplaces and enabling the consumer to receive informative insights of a product or service in a transparent manner.
 Find out about prices, availability, features, reviews and more searching in one place and receiving the best results from multiple sources.
-Join the project and help make the world a better palce for trade.
+Join the project and help make the world a better place for trade.
 
 
 ##### Checkout [Current LIVE beta](https://searchprod.com)
@@ -13,17 +13,15 @@ Join the project and help make the world a better palce for trade.
 
 ##### Current stack:
 
-. [Frontend Webapp](https://github.com/guilhebl/offer-web) -> Javascript: Angular4, Typescript, NgRx, Gulp
+. [Frontend](https://github.com/guilhebl/offer-web) -> Angular4, Typescript, NgRx, Gulp
 
-. [Backend REST API Server](https://github.com/guilhebl/offer-backend) -> Scala Play
-
-. [Backend Test Server](https://github.com/guilhebl/offer-backend-nodejs) -> NodeJS Backend JSON API for Test Environment
+. [Backend](https://github.com/guilhebl/offer-java) -> Java
 
 ##### Future stack:
 
-. [Frontend Webapp](https://github.com/guilhebl/offer-web) -> Javascript: Angular5, Typescript, NgRx, Webpack
+. [Frontend](https://github.com/guilhebl/offer-web) -> Angular5, Typescript, NgRx, Webpack
 
-. [Backend REST API Server](https://github.com/guilhebl/go-offer) -> Go
+. [Backend](https://github.com/guilhebl/go-offer) -> Go
 
 ## Getting started
 
@@ -51,8 +49,55 @@ after building run command
 
 ./go-offer
 
+### static folder
 
-### enable cache (optional)
+Static files such as HTML,CSS,JS files are located inside the `static` folder
+
+
+make sure cache is disabled when running tests.
+
+
+### setup DB
+
+Setup and install [apache cassandra](https://linode.com/docs/databases/cassandra/deploy-scalable-cassandra/)
+
+[Go Client](https://academy.datastax.com/resources/getting-started-apache-cassandra-and-go)
+
+
+cqlsh -u cassandra -p cassandra
+ CREATE ROLE [new_superuser] WITH PASSWORD = '[secure_password]' AND SUPERUSER = true AND LOGIN = true;
+ ALTER ROLE cassandra WITH PASSWORD = 'cassandra' AND SUPERUSER = false AND LOGIN = false;
+ REVOKE ALL PERMISSIONS ON ALL KEYSPACES FROM cassandra;
+ GRANT ALL PERMISSIONS ON ALL KEYSPACES TO [superuser];
+
+create 2 keyspace, one for production and one for test:
+
+`
+CREATE KEYSPACE atlanteus
+  WITH REPLICATION = {
+   'class' : 'SimpleStrategy',
+   'replication_factor' : 1
+  };
+`
+
+create test keyspace:
+
+`
+CREATE KEYSPACE test
+  WITH REPLICATION = {
+   'class' : 'SimpleStrategy',
+   'replication_factor' : 1
+  };
+`
+
+check if keyspaces were correctly created using `DESCRIBE keyspaces;`
+
+Run:
+
+`CREATE ROLE admin WITH PASSWORD = '[strong password]' AND SUPERUSER = true AND LOGIN = true;`
+
+
+### setup cache (optional)
 
 Setup and install REDIS cache as described [here](http://www.geekpills.com/operating-system/linux/install-configure-redis-ubuntu-17-10)
 
@@ -81,10 +126,29 @@ curl -H "Content-Type: application/json" -X POST -d '{ "searchColumns":[ { "name
 GET localhost:8080/offers/887276234465?idType=upc&source=walmart.com
 ```
 
+4. Search offers from datastore (cassandra)
+
+```
+GET localhost:8080/offerlist
+```
+
+
+5. Add offers to datastore (cassandra)
+
+```
+curl -H "Content-Type: application/json" -X POST -d '{"upc":"upc1","name":"test record","partyName":"amazon.com","semanticName":"http:/item01","mainImageFileUrl":"http:/item01.jpg","partyImageFileUrl":"amazon-logo.jpg","productCategory":"laptops","price":500,"rating":3.88,"numReviews":120}' http://localhost:8080/offerlist
+```
+
 ### testing
 
-go test ./...
+to run main functional tests 
+stack must be running without REDIS cache, but with Cassandra DB on as it runs some tests against the database, 
+from main folder type:
 
+1. `go test`
+
+to run all tests
+2. `go test ./...`
 
 ## Contribution
 

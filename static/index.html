@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="static/style.css">
+</head>
+<body>
+
+<h2>Offer</h2>
+<!-- Tab links -->
+<div class="tab">
+    <button id="list-tab-btn" class="tablinks">List</button>
+    <button id="add-tab-btn" class="tablinks">Add</button>
+</div>
+
+<!-- Tab content -->
+<div id="list-tab" class="tabcontent">
+    <h3>Offer List</h3>
+    <button id="resetBtn" class="resetBtn">Reset</button>
+    <br />
+    <br />
+
+    <table id="list" cellspacing="0" width="100%">
+        <tr>
+            <th>Id</th>
+            <th>Upc</th>
+            <th>Name</th>
+            <th>Party Name</th>
+            <th>Semantic Name</th>
+            <th>Main Image File</th>
+            <th>Party Image File</th>
+            <th>Category</th>
+            <th>Price</th>
+            <th>Rating</th>
+            <th>Num. Reviews</th>
+        </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+    </table>
+</div>
+
+<div id="add-tab" class="tabcontent">
+    <h3>Add</h3>
+    <div class="addDiv">
+    <form id="addForm">
+        <label for="upc">Upc</label>
+        <input type="text" name="upc" placeholder="Upc">
+
+        <label for="name">Name</label>
+        <input type="text" name="name" placeholder="Name">
+
+        <label for="partyName">Provider</label>
+        <input type="text" name="partyName" placeholder="Source">
+
+        <label for="semanticName">URL</label>
+        <input type="text" name="semanticName" placeholder="URL">
+
+        <label for="mainImageFileUrl">Main Img</label>
+        <input type="text" name="mainImageFileUrl" placeholder="main img">
+
+        <label for="partyImageFileUrl">Provider Img</label>
+        <input type="text" name="partyImageFileUrl" placeholder="provider img">
+
+        <label for="productCategory">Category</label>
+        <input type="text" name="productCategory" placeholder="category">
+
+        <label for="price">Price</label>
+        <input type="text" name="price" placeholder="0.00">
+
+        <label for="rating">Rating</label>
+        <input type="text" name="rating" placeholder="0.00">
+
+        <label for="numReviews">Num Reviews</label>
+        <input type="text" name="numReviews" placeholder="0">
+
+        <input type="submit" value="Ok" />
+    </form>
+    </div>
+</div>
+
+<script type="text/javascript" src="static/jquery-1.12.4.js"></script>
+<script type="text/javascript" src="static/app.js"></script>
+
+</body>
+</html>

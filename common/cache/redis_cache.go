@@ -23,10 +23,6 @@ func BuildInstance(host, port string, cacheExpirationSeconds int) *RedisCache {
 	return redisCache
 }
 
-func GetInstance() *RedisCache {
-	return redisCache
-}
-
 // Builds a new Redis Cache
 func newRedisCache(host, port string, cacheExpirationSeconds int) *RedisCache {
 	log.Printf("New Cache")
