@@ -54,7 +54,8 @@ func newModule(mode string) *Module {
 	clusterConfig := db.BuildInstance(config.GetProperty("cassandraHost"),
 		config.GetProperty("cassandraUser"),
 		config.GetProperty("cassandraPassword"),
-		config.GetProperty("cassandraKeyspace"))
+		config.GetProperty("cassandraKeyspace"),
+		config.GetIntProperty("cassandraPort"),)
 
 	// fetch ENV var param ?
 	// maxWorker := os.Getenv("MAX_WORKERS")

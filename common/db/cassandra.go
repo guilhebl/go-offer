@@ -16,10 +16,12 @@ type CassandraClient struct {
 var instance *CassandraClient
 var once sync.Once
 
-func BuildInstance(host, username, password, keyspace string) *CassandraClient {
+// builds a new cassandra db client instance using default port 9042
+func BuildInstance(host, username, password, keyspace string, port int) *CassandraClient {
 	once.Do(func() {
 		cluster := gocql.NewCluster(host)
 		cluster.Keyspace = keyspace
+		cluster.Port = port
 		cluster.ProtoVersion = 4
 		cluster.Authenticator = gocql.PasswordAuthenticator{
 			Username: username,
