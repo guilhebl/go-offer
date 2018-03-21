@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"github.com/guilhebl/go-offer/common/config"
+	"github.com/guilhebl/go-offer/common/db"
 	"github.com/guilhebl/go-offer/common/model"
 	"github.com/guilhebl/go-offer/offer/amazon"
 	"github.com/guilhebl/go-offer/offer/bestbuy"
@@ -15,7 +16,6 @@ import (
 	"math/rand"
 	"sort"
 	"strings"
-	"github.com/guilhebl/go-offer/common/db"
 )
 
 // searches offers - tries to fetch 1st in cache if not found calls marketplace

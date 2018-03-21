@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/guilhebl/go-offer/common/config"
 	"github.com/guilhebl/go-offer/common/model"
+	"github.com/guilhebl/go-offer/common/util"
 	"github.com/guilhebl/go-offer/offer/monitor"
 	"github.com/guilhebl/go-strutil"
 	"github.com/guilhebl/go-worker-pool"
@@ -154,6 +155,7 @@ func buildSearchItemList(items []SearchItem) []model.Offer {
 		}
 
 		o := model.NewOffer(
+			util.GenerateStringUUID(),
 			strconv.Itoa(item.ItemId),
 			item.Upc,
 			item.Name,
@@ -300,6 +302,7 @@ func buildProductDetail(item *SearchItem) *model.OfferDetail {
 	}
 
 	o := model.NewOffer(
+		util.GenerateStringUUID(),
 		strconv.Itoa(item.ItemId),
 		item.Upc,
 		item.Name,

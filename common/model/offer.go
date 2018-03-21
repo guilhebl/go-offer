@@ -1,8 +1,11 @@
 package model
 
-// represents an offer for a Product or service
+// represents an offer for a Product or service offered by a provider in a specific moment of Time
+// Id represents the internal Id of this offer to uniquely address this offer within the system
+// External Id represents the external Id used by the provider to address this entity in their system
 type Offer struct {
 	Id                string  `json:"id"`
+	ExternalId        string  `json:"externalId"`
 	Upc               string  `json:"upc"`
 	Name              string  `json:"name"`
 	PartyName         string  `json:"partyName"`
@@ -15,9 +18,10 @@ type Offer struct {
 	NumReviews        int     `json:"numReviews"`
 }
 
-func NewOffer(id, upc, name, partyName, semanticName, mainImageUrl, partyImageUrl, productCategory string, price, rating float32, numReviews int) *Offer {
+func NewOffer(id, externalId, upc, name, partyName, semanticName, mainImageUrl, partyImageUrl, productCategory string, price, rating float32, numReviews int) *Offer {
 	o := &Offer{
 		Id:                id,
+		ExternalId:        externalId,
 		Upc:               upc,
 		Name:              name,
 		PartyName:         partyName,

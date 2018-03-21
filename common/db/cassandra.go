@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/gocql/gocql"
 	"github.com/guilhebl/go-offer/common/model"
+	"github.com/guilhebl/go-offer/common/util"
 	"log"
 	"sync"
 )
@@ -47,10 +48,10 @@ func GetOffers() ([]model.Offer, error) {
 	defer session.Close()
 	if err != nil {
 		log.Print(err)
-		return nil,err
+		return nil, err
 	}
 
-	var id, upc, name, partyName, semanticName, mainImageFileUrl, partyImageFileUrl, productCategory string
+	var id, externalId, upc, name, partyName, semanticName, mainImageFileUrl, partyImageFileUrl, productCategory string
 	var price, rating float32
 	var numReviews int
 
@@ -58,10 +59,10 @@ func GetOffers() ([]model.Offer, error) {
 	list := make([]model.Offer, 0)
 
 	// list all
-	selectStatement := `SELECT id, upc, name, party_name, semantic_name, main_image_file_url, party_image_file_url, product_category, price, rating, num_reviews FROM offer`
+	selectStatement := `SELECT id, external_id, upc, name, party_name, semantic_name, main_image_file_url, party_image_file_url, product_category, price, rating, num_reviews FROM offer`
 	iter := session.Query(selectStatement).Iter()
-	for iter.Scan(&id, &upc, &name, &partyName, &semanticName, &mainImageFileUrl, &partyImageFileUrl, &productCategory, &price, &rating, &numReviews) {
-		o := model.NewOffer(id, upc, name, partyName, semanticName, mainImageFileUrl, partyImageFileUrl, productCategory, price, rating, numReviews)
+	for iter.Scan(&id, &externalId, &upc, &name, &partyName, &semanticName, &mainImageFileUrl, &partyImageFileUrl, &productCategory, &price, &rating, &numReviews) {
+		o := model.NewOffer(id, externalId, upc, name, partyName, semanticName, mainImageFileUrl, partyImageFileUrl, productCategory, price, rating, numReviews)
 		list = append(list, *o)
 	}
 	return list, nil
@@ -79,8 +80,7 @@ func InsertOffer(o *model.Offer) (*model.Offer, error) {
 	}
 
 	// create new UUID
-	uuid, _ := gocql.RandomUUID();
-	o.Id = uuid.String()
+	o.Id = util.GenerateStringUUID()
 
 	if err := insertOffer(session, o); err != nil {
 		return nil, err
@@ -91,12 +91,12 @@ func InsertOffer(o *model.Offer) (*model.Offer, error) {
 // insert Offer
 func insertOffer(session *gocql.Session, o *model.Offer) error {
 	insertStatement := `
-INSERT INTO offer (id, upc, name, party_name, semantic_name, main_image_file_url, party_image_file_url, product_category, price, rating, num_reviews)
-VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+INSERT INTO offer (id, external_id, upc, name, party_name, semantic_name, main_image_file_url, party_image_file_url, product_category, price, rating, num_reviews)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
 
 	// insert an offer
 	if err := session.Query(insertStatement,
-		o.Id, o.Upc, o.Name, o.PartyName, o.SemanticName, o.MainImageFileUrl, o.PartyImageFileUrl, o.ProductCategory, o.Price, o.Rating, o.NumReviews).Exec(); err != nil {
+		o.Id, o.ExternalId, o.Upc, o.Name, o.PartyName, o.SemanticName, o.MainImageFileUrl, o.PartyImageFileUrl, o.ProductCategory, o.Price, o.Rating, o.NumReviews).Exec(); err != nil {
 		return err
 	}
 	return nil
@@ -115,7 +115,7 @@ func Reset() error {
 
 	// drop table if exists
 	keyspace := GetInstance().ClusterConfig.Keyspace
-	dropTable := fmt.Sprintf("Drop TABLE IF EXISTS %s.offer", keyspace)
+	dropTable := fmt.Sprintf("DROP TABLE IF EXISTS %s.offer", keyspace)
 	if err := session.Query(dropTable).Exec(); err != nil {
 		log.Print(err)
 		return err
@@ -124,7 +124,8 @@ func Reset() error {
 	// create table
 	createTableStatement := fmt.Sprintf(`
 CREATE TABLE %s.offer (
-	id text PRIMARY KEY, 
+	id uuid PRIMARY KEY,
+	external_id text, 
 	upc text, 
 	name text, 
 	party_name text, 
@@ -142,30 +143,50 @@ CREATE TABLE %s.offer (
 		return err
 	}
 
+	// create index on external Id
+	createIndexStatement := fmt.Sprintf(`
+	CREATE INDEX IF NOT EXISTS offer_external_id
+	ON %s.offer (external_id)`, keyspace)
+
+	if err := session.Query(createIndexStatement).Exec(); err != nil {
+		log.Print(err)
+		return err
+	}
+
+	// create index on UPC
+	createIndexUpcStatement := fmt.Sprintf(`
+	CREATE INDEX IF NOT EXISTS offer_external_id
+	ON %s.offer (upc)`, keyspace)
+
+	if err := session.Query(createIndexUpcStatement).Exec(); err != nil {
+		log.Print(err)
+		return err
+	}
+
 	// insert sample offers
 	if err := insertOffer(session, model.NewOffer(
-		"1", "upc12345678", "offer 1", "amazon.com", "https://amazon.com/offer/001", "https://amazon.com/img/offer/001", "amazon-logo.jpg", "offers", 50.00, 2.5, 50,
+		util.GenerateStringUUID(), "1", "upc12345678", "offer 1", "amazon.com", "https://amazon.com/offer/001", "https://amazon.com/img/offer/001", "amazon-logo.jpg", "offers", 50.00, 2.5, 50,
 	)); err != nil {
 		log.Print(err)
 		return err
 	}
 
 	if err := insertOffer(session, model.NewOffer(
-		"2", "upc22345678", "offer 2", "bestbuy.com", "https://bestbuy.com/offer/001", "https://bestbuy.com/img/offer/001", "bestbuy-logo.jpg", "offers", 60.00, 2.8, 30,
+		util.GenerateStringUUID(), "2", "upc22345678", "offer 2", "bestbuy.com", "https://bestbuy.com/offer/001", "https://bestbuy.com/img/offer/001", "bestbuy-logo.jpg", "offers", 60.00, 2.8, 30,
 	)); err != nil {
 		log.Print(err)
 		return err
 	}
 
 	if err := insertOffer(session, model.NewOffer(
-		"3", "upc32345678", "offer 3", "walmart.com", "https://walmart.com/offer/001", "https://walmart.com/img/offer/001", "walmart-logo.jpg", "offers", 65.00, 4.5, 60,
+		util.GenerateStringUUID(), "3", "upc32345678", "offer 3", "walmart.com", "https://walmart.com/offer/001", "https://walmart.com/img/offer/001", "walmart-logo.jpg", "offers", 65.00, 4.5, 60,
 	)); err != nil {
 		log.Print(err)
 		return err
 	}
 
 	if err := insertOffer(session, model.NewOffer(
-		"4", "upc42345678", "offer 4", "ebay.com", "https://ebay.com/offer/001", "https://ebay.com/img/offer/001", "ebay-logo.jpg", "offers", 105.00, 3.5, 60,
+		util.GenerateStringUUID(), "4", "upc42345678", "offer 4", "ebay.com", "https://ebay.com/offer/001", "https://ebay.com/img/offer/001", "ebay-logo.jpg", "offers", 105.00, 3.5, 60,
 	)); err != nil {
 		log.Print(err)
 		return err

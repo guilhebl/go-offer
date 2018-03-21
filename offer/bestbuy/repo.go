@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/guilhebl/go-offer/common/config"
 	"github.com/guilhebl/go-offer/common/model"
+	"github.com/guilhebl/go-offer/common/util"
 	"github.com/guilhebl/go-offer/offer/monitor"
 	"github.com/guilhebl/go-worker-pool"
 	"log"
@@ -135,6 +136,7 @@ func buildTrendingItemList(items []TrendingItem) []model.Offer {
 
 	for _, item := range items {
 		o := model.NewOffer(
+			util.GenerateStringUUID(),
 			item.Sku,
 			"",
 			item.Names.Title,
@@ -306,6 +308,7 @@ func GetOfferDetail(id string, idType string, country string) *model.OfferDetail
 func buildOffer(item *SearchItem, proxyRequired bool) model.Offer {
 
 	o := model.NewOffer(
+		util.GenerateStringUUID(),
 		strconv.Itoa(item.ProductId),
 		item.Upc,
 		item.Name,

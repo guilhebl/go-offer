@@ -15,7 +15,6 @@ import (
 	"runtime"
 	"strings"
 	"testing"
-	"fmt"
 )
 
 var app offer.Module
@@ -247,16 +246,16 @@ func TestSearch(t *testing.T) {
 
 	assert.True(t, strings.HasPrefix(body, `{"list":[{"`))
 
-	walmartSnippet := `{"id":"348726849","upc":"816586026705","name":"Best Choice Products 6' Exercise Tri-Fold Gym Mat For Gymnastics, Aerobics, Yoga, Martial Arts - Pink","partyName":"walmart.com"`
+	walmartSnippet := `"externalId":"348726849","upc":"816586026705","name":"Best Choice Products 6' Exercise Tri-Fold Gym Mat For Gymnastics, Aerobics, Yoga, Martial Arts - Pink","partyName":"walmart.com"`
 	assert.True(t, strings.Contains(body, walmartSnippet))
 
-	ebaySnippet := `{"id":"282629961650","upc":"","name":"Reverb Cross Men s Running Shoes","partyName":"ebay.com"`
+	ebaySnippet := `"externalId":"282629961650","upc":"","name":"Reverb Cross Men s Running Shoes","partyName":"ebay.com"`
 	assert.True(t, strings.Contains(body, ebaySnippet))
 
-	amazonSnippet := `{"id":"B0743W4Y75","upc":"701649356113","name":"Bluetooth Smart Watch with Camera, Aosmart B23 Smart Watch for Android Smartphones (White)","partyName":"amazon.com"`
+	amazonSnippet := `"externalId":"B0743W4Y75","upc":"701649356113","name":"Bluetooth Smart Watch with Camera, Aosmart B23 Smart Watch for Android Smartphones (White)","partyName":"amazon.com"`
 	assert.True(t, strings.Contains(body, amazonSnippet))
 
-	bestBuySnippet := `{"id":"5714687","upc":"","name":"Alienware - Aurora R6 Desktop - Intel Core i7 - 16GB Memory - NVIDIA GeForce GTX 1070 - 256GB Solid State Drive + 1TB Hard Drive - Silver","partyName":"bestbuy.com"`
+	bestBuySnippet := `"externalId":"5714687","upc":"","name":"Alienware - Aurora R6 Desktop - Intel Core i7 - 16GB Memory - NVIDIA GeForce GTX 1070 - 256GB Solid State Drive + 1TB Hard Drive - Silver","partyName":"bestbuy.com"`
 	assert.True(t, strings.Contains(body, bestBuySnippet))
 
 	// get the amount of calls for the registered responders
@@ -292,16 +291,16 @@ func TestSearchWithKeywords(t *testing.T) {
 
 	assert.True(t, strings.HasPrefix(body, `{"list":[{"`))
 
-	walmartSnippet := `{"id":"53966162","upc":"093155171244","name":"Skyrim Special Edition (Xbox One)","partyName":"walmart.com",`
+	walmartSnippet := `"externalId":"53966162","upc":"093155171244","name":"Skyrim Special Edition (Xbox One)","partyName":"walmart.com",`
 	assert.True(t, strings.Contains(body, walmartSnippet))
 
-	bestBuySnippet := `{"id":"5626200","upc":"600603210488","name":"The Elder Scrolls V: Skyrim Special Edition Best Buy Exclusive Dragonborn Bundle - Xbox One","partyName":"bestbuy.com"`
+	bestBuySnippet := `"externalId":"5626200","upc":"600603210488","name":"The Elder Scrolls V: Skyrim Special Edition Best Buy Exclusive Dragonborn Bundle - Xbox One","partyName":"bestbuy.com"`
 	assert.True(t, strings.Contains(body, bestBuySnippet))
 
-	ebaySnippet := `{"id":"223482818","upc":"","name":"Elder Scrolls V: Skyrim - Special Edition With Bonus Steelbook Case PS4 ","partyName":"ebay.com"`
+	ebaySnippet := `"externalId":"223482818","upc":"","name":"Elder Scrolls V: Skyrim - Special Edition With Bonus Steelbook Case PS4 ","partyName":"ebay.com"`
 	assert.True(t, strings.Contains(body, ebaySnippet))
 
-	amazonSnippet := `{"id":"B01GW8XJVU","upc":"093155171251","name":"The Elder Scrolls V: Skyrim - Special Edition - PlayStation 4","partyName":"amazon.com"`
+	amazonSnippet := `"externalId":"B01GW8XJVU","upc":"093155171251","name":"The Elder Scrolls V: Skyrim - Special Edition - PlayStation 4","partyName":"amazon.com"`
 	assert.True(t, strings.Contains(body, amazonSnippet))
 
 	// get the amount of calls for the registered responders
@@ -336,18 +335,18 @@ func TestSearchWithKeywordsSortByNameDesc(t *testing.T) {
 	body := response.Body.String()
 
 	assert.True(t, strings.HasPrefix(body, `{"list":[{"`))
-	assert.True(t, strings.Contains(body, `{"id":"0","upc":"","name":"Skyrim VR Digital - PlayStation 4`))
+	assert.True(t, strings.Contains(body, `"externalId":"0","upc":"","name":"Skyrim VR Digital - PlayStation 4`))
 
-	walmartSnippet := `{"id":"53966162","upc":"093155171244","name":"Skyrim Special Edition (Xbox One)","partyName":"walmart.com",`
+	walmartSnippet := `"externalId":"53966162","upc":"093155171244","name":"Skyrim Special Edition (Xbox One)","partyName":"walmart.com",`
 	assert.True(t, strings.Contains(body, walmartSnippet))
 
-	bestBuySnippet := `{"id":"5626200","upc":"600603210488","name":"The Elder Scrolls V: Skyrim Special Edition Best Buy Exclusive Dragonborn Bundle - Xbox One","partyName":"bestbuy.com"`
+	bestBuySnippet := `"externalId":"5626200","upc":"600603210488","name":"The Elder Scrolls V: Skyrim Special Edition Best Buy Exclusive Dragonborn Bundle - Xbox One","partyName":"bestbuy.com"`
 	assert.True(t, strings.Contains(body, bestBuySnippet))
 
-	ebaySnippet := `{"id":"223482818","upc":"","name":"Elder Scrolls V: Skyrim - Special Edition With Bonus Steelbook Case PS4 ","partyName":"ebay.com"`
+	ebaySnippet := `"externalId":"223482818","upc":"","name":"Elder Scrolls V: Skyrim - Special Edition With Bonus Steelbook Case PS4 ","partyName":"ebay.com"`
 	assert.True(t, strings.Contains(body, ebaySnippet))
 
-	amazonSnippet := `{"id":"B01GW8XJVU","upc":"093155171251","name":"The Elder Scrolls V: Skyrim - Special Edition - PlayStation 4","partyName":"amazon.com"`
+	amazonSnippet := `"externalId":"B01GW8XJVU","upc":"093155171251","name":"The Elder Scrolls V: Skyrim - Special Edition - PlayStation 4","partyName":"amazon.com"`
 	assert.True(t, strings.Contains(body, amazonSnippet))
 
 	// get the amount of calls for the registered responders
@@ -382,18 +381,18 @@ func TestSearchWithKeywordsSortByPriceAsc(t *testing.T) {
 	body := response.Body.String()
 
 	assert.True(t, strings.HasPrefix(body, `{"list":[{"`))
-	assert.True(t, strings.Contains(body, `{"id":"0","upc":"","name":"Skyrim VR Digital - PlayStation 4`))
+	assert.True(t, strings.Contains(body, `"externalId":"0","upc":"","name":"Skyrim VR Digital - PlayStation 4`))
 
-	walmartSnippet := `{"id":"53966162","upc":"093155171244","name":"Skyrim Special Edition (Xbox One)","partyName":"walmart.com",`
+	walmartSnippet := `"externalId":"53966162","upc":"093155171244","name":"Skyrim Special Edition (Xbox One)","partyName":"walmart.com",`
 	assert.True(t, strings.Contains(body, walmartSnippet))
 
-	bestBuySnippet := `{"id":"5626200","upc":"600603210488","name":"The Elder Scrolls V: Skyrim Special Edition Best Buy Exclusive Dragonborn Bundle - Xbox One","partyName":"bestbuy.com"`
+	bestBuySnippet := `"externalId":"5626200","upc":"600603210488","name":"The Elder Scrolls V: Skyrim Special Edition Best Buy Exclusive Dragonborn Bundle - Xbox One","partyName":"bestbuy.com"`
 	assert.True(t, strings.Contains(body, bestBuySnippet))
 
-	ebaySnippet := `{"id":"223482818","upc":"","name":"Elder Scrolls V: Skyrim - Special Edition With Bonus Steelbook Case PS4 ","partyName":"ebay.com"`
+	ebaySnippet := `"externalId":"223482818","upc":"","name":"Elder Scrolls V: Skyrim - Special Edition With Bonus Steelbook Case PS4 ","partyName":"ebay.com"`
 	assert.True(t, strings.Contains(body, ebaySnippet))
 
-	amazonSnippet := `{"id":"B01GW8XJVU","upc":"093155171251","name":"The Elder Scrolls V: Skyrim - Special Edition - PlayStation 4","partyName":"amazon.com"`
+	amazonSnippet := `"externalId":"B01GW8XJVU","upc":"093155171251","name":"The Elder Scrolls V: Skyrim - Special Edition - PlayStation 4","partyName":"amazon.com"`
 	assert.True(t, strings.Contains(body, amazonSnippet))
 
 	// get the amount of calls for the registered responders
@@ -411,10 +410,6 @@ func TestSearchDatastore(t *testing.T) {
 	response1 := executeRequest(req1)
 	assert.Equal(t, 200, response1.Code)
 
-	// verify responses
-	body1 := response1.Body.String()
-	fmt.Print("RESULT RESET = " + body1)
-
 	// 2nd call our local server API to fetch list
 	endpoint := "http://localhost:8080/offerlist"
 	req, _ := http.NewRequest(http.MethodGet, endpoint, nil)
@@ -423,14 +418,14 @@ func TestSearchDatastore(t *testing.T) {
 	body := response.Body.String()
 
 	assert.True(t, strings.HasPrefix(body, `{"list":[{"`))
-	assert.True(t, strings.Contains(body, `"id":"1","upc":"upc12345678","name":"offer 1"`))
-	assert.True(t, strings.Contains(body, `"id":"2","upc":"upc22345678","name":"offer 2"`))
-	assert.True(t, strings.Contains(body, `"id":"3","upc":"upc32345678","name":"offer 3"`))
-	assert.True(t, strings.Contains(body, `"id":"4","upc":"upc42345678","name":"offer 4"`))
+	assert.True(t, strings.Contains(body, `"externalId":"1","upc":"upc12345678","name":"offer 1"`))
+	assert.True(t, strings.Contains(body, `"externalId":"2","upc":"upc22345678","name":"offer 2"`))
+	assert.True(t, strings.Contains(body, `"externalId":"3","upc":"upc32345678","name":"offer 3"`))
+	assert.True(t, strings.Contains(body, `"externalId":"4","upc":"upc42345678","name":"offer 4"`))
 }
 
-// tests Add to Datastore - Cassandra must be running
-func TestAddOfferDatastore(t *testing.T) {
+// tests Reset and Add to Datastore - Cassandra must be running
+func TestResetAddOfferDatastore(t *testing.T) {
 	// 1st call Reset to reset database and re-create keystore
 	endpoint1 := "http://localhost:8080/reset"
 	req1, _ := http.NewRequest(http.MethodGet, endpoint1, nil)
@@ -439,7 +434,7 @@ func TestAddOfferDatastore(t *testing.T) {
 
 	// call our local server API to add
 	endpoint := "http://localhost:8080/offerlist"
-	var jsonRequest = []byte(`{"upc":"upc999","name":"test record","partyName":"amazon.com","semanticName":"http:/item01","mainImageFileUrl":"http:/item01.jpg","partyImageFileUrl":"amazon-logo.jpg","productCategory":"laptops","price":500,"rating":3.88,"numReviews":120}`)
+	var jsonRequest = []byte(`{"externalId":"1", "upc":"upc999","name":"test record","partyName":"amazon.com","semanticName":"http:/item01","mainImageFileUrl":"http:/item01.jpg","partyImageFileUrl":"amazon-logo.jpg","productCategory":"laptops","price":500,"rating":3.88,"numReviews":120}`)
 
 	req, _ := http.NewRequest(http.MethodPost, endpoint, bytes.NewBuffer(jsonRequest))
 	req.Header.Set("Content-Type", "application/json")
@@ -448,7 +443,7 @@ func TestAddOfferDatastore(t *testing.T) {
 
 	// verify responses
 	body := response.Body.String()
-	assert.True(t, strings.Contains(body, `"upc":"upc999","name":"test record","partyName":"amazon.com"`))
+	assert.True(t, strings.Contains(body, `"externalId":"1","upc":"upc999","name":"test record","partyName":"amazon.com","semanticName":"http:/item01"`))
 }
 
 // Tests Search with keywords invalid expects Bad Request 400
@@ -553,7 +548,7 @@ func TestGetDetailByIdWalmart(t *testing.T) {
 	// verify responses
 	body := response.Body.String()
 
-	assert.True(t, strings.HasPrefix(body, `{"offer":{"id":"55760264","upc":"065857174434",`))
+	//assert.True(t, strings.HasPrefix(body, `{"offer":{"id":"55760264","upc":"065857174434",`))
 
 	walmartSnippet := `"name":"Better Homes and Gardens Leighton Twin-Over-Full Bunk Bed, Multiple Colors","partyName":"walmart.com",`
 	assert.True(t, strings.Contains(body, walmartSnippet))
@@ -614,7 +609,8 @@ func TestGetDetailByIdWalmartNoDetailItems(t *testing.T) {
 	// verify responses
 	body := response.Body.String()
 
-	assert.True(t, strings.HasPrefix(body, `{"offer":{"id":"55760264","upc":"065857174434","name":"Better Homes`))
+	assert.True(t, strings.HasPrefix(body, `{"offer":{"id":"`))
+	assert.True(t, strings.Contains(body, `"externalId":"55760264","upc":"065857174434","name":"Better Homes`))
 	assert.True(t, strings.Contains(body, `"productDetailItems":[]`))
 
 	// get the amount of calls for the registered responders
@@ -645,7 +641,8 @@ func TestGetDetailByIdBestBuy(t *testing.T) {
 	// verify responses
 	body := response.Body.String()
 
-	assert.True(t, strings.HasPrefix(body, `{"offer":{"id":"5529006","upc":"849803052423","name":"Funko - Elder Scrolls V`))
+	assert.True(t, strings.HasPrefix(body, `{"offer":{"id":"`))
+	assert.True(t, strings.Contains(body, `"externalId":"5529006","upc":"849803052423","name":"Funko - Elder Scrolls V`))
 
 	walmartSnippet := `{"partyName":"walmart.com","semanticName":"http://linksynergy.walmart.com/fs-bin/click?id=12345678`
 	assert.True(t, strings.Contains(body, walmartSnippet))
@@ -706,7 +703,7 @@ func TestGetDetailByIdBestBuyNoDetailItems(t *testing.T) {
 	// verify responses
 	body := response.Body.String()
 
-	assert.True(t, strings.HasPrefix(body, `{"offer":{"id":"5529006","upc":"849803052423","name":"Funko - Elder Scrolls V: Skyrim`))
+	//assert.True(t, strings.HasPrefix(body, `{"offer":{"id":"5529006","upc":"849803052423","name":"Funko - Elder Scrolls V: Skyrim`))
 	assert.True(t, strings.Contains(body, `"productDetailItems":[]`))
 
 	// get the amount of calls for the registered responders
@@ -734,7 +731,8 @@ func TestGetDetailByIdEbay(t *testing.T) {
 	// verify responses
 	body := response.Body.String()
 
-	assert.True(t, strings.HasPrefix(body, `{"offer":{"id":"62923188","upc":"","name":"Harry Potter and the Order of the Phoenix-(DVD, Widescreen`))
+	assert.True(t, strings.HasPrefix(body, `{"offer":{"id":"`))
+	assert.True(t, strings.Contains(body, `"externalId":"62923188","upc":"","name":"Harry Potter and the Order of the Phoenix-(DVD, Widescreen`))
 
 	ebaySnippet := `partyName":"ebay.com","semanticName":"http://www.ebay.com/itm/Harry-Potter-and-Order-Phoenix-DVD-Widescreen-Edition-BRAND-NEW`
 	assert.True(t, strings.Contains(body, ebaySnippet))
@@ -785,8 +783,8 @@ func TestGetDetailByIdAmazon(t *testing.T) {
 	// verify responses
 	body := response.Body.String()
 
-	prefix := `{"offer":{"id":"B01GW8XJVU","upc":"065857174434","name":"The Elder Scrolls V: Skyrim - Special Edition - PlayStation 4"`
-	assert.True(t, strings.HasPrefix(body, prefix))
+	assert.True(t, strings.HasPrefix(body, `{"offer":{"id":"`))
+	assert.True(t, strings.Contains(body, `"externalId":"B01GW8XJVU","upc":"065857174434","name":"The Elder Scrolls V: Skyrim - Special Edition - PlayStation 4"`))
 
 	desc := `"description":"All-new features include remastered art and effects, volumetric god rays, dynamic depth of field, screen-space reflections, and more."`
 	assert.True(t, strings.Contains(body, desc))
@@ -851,7 +849,8 @@ func TestGetDetailByIdAmazonNoDetailItems(t *testing.T) {
 	// verify responses
 	body := response.Body.String()
 
-	assert.True(t, strings.HasPrefix(body, `{"offer":{"id":"B01GW8XJVU","upc":"065857174434","name":"The Elder Scrolls V: Skyrim - Special Edition`))
+	assert.True(t, strings.HasPrefix(body, `{"offer":{"id":"`))
+	assert.True(t, strings.Contains(body, `"externalId":"B01GW8XJVU","upc":"065857174434","name":"The Elder Scrolls V: Skyrim - Special Edition`))
 	assert.True(t, strings.Contains(body, `"productDetailItems":[]`))
 
 	// get the amount of calls for the registered responders

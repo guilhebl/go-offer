@@ -4,21 +4,21 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/guilhebl/go-offer/common/cache"
 	"github.com/guilhebl/go-offer/common/config"
+	"github.com/guilhebl/go-offer/common/db"
 	"github.com/guilhebl/go-worker-pool"
 	"log"
+	"net/http"
 	"runtime"
 	"sync"
-	"github.com/guilhebl/go-offer/common/db"
-	"net/http"
 )
 
 // centralized module manager which holds references to JobQueue and other global app scoped objects
 // Singleton enforcing the module will be initialized at max. once per app.
 type Module struct {
-	JobQueue   chan job.Job
-	Dispatcher *job.WorkerPool
-	Router     *mux.Router
-	RedisCache *cache.RedisCache
+	JobQueue        chan job.Job
+	Dispatcher      *job.WorkerPool
+	Router          *mux.Router
+	RedisCache      *cache.RedisCache
 	CassandraClient *db.CassandraClient
 }
 
@@ -55,7 +55,7 @@ func newModule(mode string) *Module {
 		config.GetProperty("cassandraUser"),
 		config.GetProperty("cassandraPassword"),
 		config.GetProperty("cassandraKeyspace"),
-		config.GetIntProperty("cassandraPort"),)
+		config.GetIntProperty("cassandraPort"))
 
 	// fetch ENV var param ?
 	// maxWorker := os.Getenv("MAX_WORKERS")
@@ -65,9 +65,9 @@ func newModule(mode string) *Module {
 	jobQueue := make(chan job.Job)
 
 	module := Module{
-		Dispatcher: &workerPool,
-		JobQueue:   jobQueue,
-		Router:     router,
+		Dispatcher:      &workerPool,
+		JobQueue:        jobQueue,
+		Router:          router,
 		CassandraClient: clusterConfig,
 	}
 

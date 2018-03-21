@@ -3,6 +3,7 @@ package amazon
 import (
 	"github.com/guilhebl/go-offer/common/config"
 	"github.com/guilhebl/go-offer/common/model"
+	"github.com/guilhebl/go-offer/common/util"
 	"github.com/guilhebl/go-offer/offer/monitor"
 	"github.com/guilhebl/go-worker-pool"
 	"log"
@@ -117,6 +118,7 @@ func buildOffer(item *Item, proxyRequired bool) *model.Offer {
 	}
 
 	o := model.NewOffer(
+		util.GenerateStringUUID(),
 		item.ASIN,
 		upc,
 		title,
