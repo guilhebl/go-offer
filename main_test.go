@@ -434,7 +434,7 @@ func TestResetAddOfferDatastore(t *testing.T) {
 
 	// call our local server API to add
 	endpoint := "http://localhost:8080/offerlist"
-	var jsonRequest = []byte(`{"externalId":"1", "upc":"upc999","name":"test record","partyName":"amazon.com","semanticName":"http:/item01","mainImageFileUrl":"http:/item01.jpg","partyImageFileUrl":"amazon-logo.jpg","productCategory":"laptops","price":500,"rating":3.88,"numReviews":120}`)
+	var jsonRequest = []byte(`{"externalId":"1", "upc":"upc999","name":"test record","partyName":"amazon.com","semanticName":"http:/item01","mainImageFileUrl":"http:/item01.jpg","partyImageFileUrl":"amazon-logo.jpg","productCategory":"laptops","price":500,"rating":3.88,"numReviews":120, "created": "2017-11-01T22:08:41+00:00"}`)
 
 	req, _ := http.NewRequest(http.MethodPost, endpoint, bytes.NewBuffer(jsonRequest))
 	req.Header.Set("Content-Type", "application/json")
@@ -736,8 +736,7 @@ func TestGetDetailByIdEbay(t *testing.T) {
 
 	ebaySnippet := `partyName":"ebay.com","semanticName":"http://www.ebay.com/itm/Harry-Potter-and-Order-Phoenix-DVD-Widescreen-Edition-BRAND-NEW`
 	assert.True(t, strings.Contains(body, ebaySnippet))
-
-	assert.True(t, strings.Contains(body, `"price":5.62,"rating":0,"numReviews":0},"description":"","attributes":[],"productDetailItems":[]}`))
+	assert.True(t, strings.Contains(body, `"description":"","attributes":[],"productDetailItems":[]}`))
 
 	// get the amount of calls for the registered responders
 	assertCallsMade(t, http.MethodGet, EbayGetDetailUrl, 1)

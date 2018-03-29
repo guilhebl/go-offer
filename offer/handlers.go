@@ -8,6 +8,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/guilhebl/go-offer/common/config"
 	"github.com/guilhebl/go-offer/common/model"
+	"log"
 )
 
 // handles error conditions coming from service layer
@@ -78,6 +79,9 @@ func ResetDatastore(w http.ResponseWriter, r *http.Request) {
 
 	err := ResetDb()
 	if err != nil {
+
+		log.Printf("ERROR ---- %s ", err.Error())
+
 		handleErr(err.Error(), w)
 		return
 	}

@@ -167,6 +167,7 @@ func buildSearchItemList(items []SearchItem) []model.Offer {
 			item.SalePrice,
 			float32(rate),
 			item.NumReviews,
+			time.Now(),
 		)
 
 		list = append(list, *o)
@@ -314,6 +315,7 @@ func buildProductDetail(item *SearchItem) *model.OfferDetail {
 		item.SalePrice,
 		float32(rate),
 		item.NumReviews,
+		time.Now(),
 	)
 
 	attrs := make(map[string]string)

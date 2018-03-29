@@ -186,6 +186,7 @@ func buildOffer(item *SearchItem, proxyRequired bool) *model.Offer {
 		float32(price),
 		0.0,
 		0,
+		time.Now(),
 	)
 	return o
 }

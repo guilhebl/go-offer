@@ -130,6 +130,7 @@ func buildOffer(item *Item, proxyRequired bool) *model.Offer {
 		buildPrice(summary.LowestNewPrice, summary.LowerUsedPrice),
 		0.0,
 		0,
+		time.Now(),
 	)
 
 	return o

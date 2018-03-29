@@ -148,6 +148,7 @@ func buildTrendingItemList(items []TrendingItem) []model.Offer {
 			item.Prices.Current,
 			item.CustomerReviews.AverageScore,
 			item.CustomerReviews.Count,
+			time.Now(),
 		)
 
 		list = append(list, *o)
@@ -320,6 +321,7 @@ func buildOffer(item *SearchItem, proxyRequired bool) model.Offer {
 		item.SalePrice,
 		item.CustomerReviewAverage,
 		item.CustomerReviewCount,
+		time.Now(),
 	)
 
 	return *o
