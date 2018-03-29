@@ -146,16 +146,6 @@ CREATE TABLE %s.offer (
 		return err
 	}
 
-	//// create index on UPC
-	//createIndexUpcStatement := fmt.Sprintf(`
-	//CREATE INDEX IF NOT EXISTS offer_upc
-	//ON %s.offer (upc)`, keyspace)
-	//
-	//if err := session.Query(createIndexUpcStatement).Exec(); err != nil {
-	//	log.Print(err)
-	//	return err
-	//}
-
 	// insert sample offers
 	if err := insertOffer(session, model.NewOffer(
 		util.GenerateStringUUID(), "1", "upc12345678", "offer 1", "amazon.com", "https://amazon.com/offer/001", "https://amazon.com/img/offer/001", "amazon-logo.jpg", "offers", 50.00, 2.5, 50, time.Now(),
