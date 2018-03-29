@@ -6,19 +6,19 @@ import "time"
 // Id represents the internal Id of this offer to uniquely address this offer within the system
 // External Id represents the external Id used by the provider to address this entity in their system
 type Offer struct {
-	Id                string  `json:"id"`
-	ExternalId        string  `json:"externalId"`
-	Upc               string  `json:"upc"`
-	Name              string  `json:"name"`
-	PartyName         string  `json:"partyName"`
-	SemanticName      string  `json:"semanticName"`
-	MainImageFileUrl  string  `json:"mainImageFileUrl"`
-	PartyImageFileUrl string  `json:"partyImageFileUrl"`
-	ProductCategory   string  `json:"productCategory"`
-	Price             float32 `json:"price"`
-	Rating            float32 `json:"rating"`
-	NumReviews        int     `json:"numReviews"`
-	Created			  time.Time `json:"created"`
+	Id                string    `json:"id"`
+	ExternalId        string    `json:"externalId"`
+	Upc               string    `json:"upc"`
+	Name              string    `json:"name"`
+	PartyName         string    `json:"partyName"`
+	SemanticName      string    `json:"semanticName"`
+	MainImageFileUrl  string    `json:"mainImageFileUrl"`
+	PartyImageFileUrl string    `json:"partyImageFileUrl"`
+	ProductCategory   string    `json:"productCategory"`
+	Price             float32   `json:"price"`
+	Rating            float32   `json:"rating"`
+	NumReviews        int       `json:"numReviews"`
+	Created           time.Time `json:"created"`
 }
 
 func NewOffer(id, externalId, upc, name, partyName, semanticName, mainImageUrl, partyImageUrl, productCategory string, price, rating float32, numReviews int, created time.Time) *Offer {
@@ -35,7 +35,7 @@ func NewOffer(id, externalId, upc, name, partyName, semanticName, mainImageUrl, 
 		Price:             price,
 		Rating:            rating,
 		NumReviews:        numReviews,
-		Created:	created,
+		Created:           created,
 	}
 	return o
 }
